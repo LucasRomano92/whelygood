@@ -47,7 +47,7 @@ export default function AdminBikesPage() {
     try {
       setLoadingBikes(true);
 
-      const res = await fetch("http://localhost:4000/bikes");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bikes`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -117,7 +117,7 @@ export default function AdminBikesPage() {
     try {
       setUploading(true);
 
-      const res = await fetch("http://localhost:4000/upload", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -159,8 +159,7 @@ export default function AdminBikesPage() {
         const formData = new FormData();
         formData.append("image", files[i]);
 
-        const res = await fetch("http://localhost:4000/upload", {
-          method: "POST",
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
           body: formData,
         });
 
@@ -221,9 +220,9 @@ export default function AdminBikesPage() {
         isActive: form.isActive,
       };
 
-      const url = editingId
-        ? `http://localhost:4000/bikes/${editingId}`
-        : "http://localhost:4000/bikes";
+     const url = editingId
+  ? `${process.env.NEXT_PUBLIC_API_URL}/bikes/${editingId}`
+  : `${process.env.NEXT_PUBLIC_API_URL}/bikes`;
 
       const method = editingId ? "PUT" : "POST";
 

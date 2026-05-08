@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -11,7 +11,7 @@ type Bike = {
   category?: "rent" | "shop";
 };
 
-export default function BookingPage() {
+function BookingContent() {
   const searchParams = useSearchParams();
   const bikeIdFromURL = searchParams.get("bikeId");
 
@@ -70,7 +70,9 @@ export default function BookingPage() {
   }, [form.startDate, form.endDate, selectedBike]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     setForm({
       ...form,
@@ -144,7 +146,7 @@ export default function BookingPage() {
       totalPrice: days * selectedBike.price,
     };
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bikes`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/booking`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -155,7 +157,7 @@ export default function BookingPage() {
     const data = await res.json();
 
     if (!res.ok) {
-    toast.error(data.message || "Error");
+      toast.error(data.message || "Error");
       return;
     }
 
@@ -217,31 +219,31 @@ export default function BookingPage() {
               />
 
               {selectedBike ? (
-  <div className="rounded-xl bg-white/10 p-4">
-    <p className="text-sm text-gray-400">Selected bike</p>
-    <p className="font-semibold">
-      {selectedBike.name} - ${selectedBike.price}/day
-    </p>
-  </div>
-) : (
-  <select
-    name="bikeId"
-    value={form.bikeId}
-    onChange={handleChange}
-    className="w-full rounded-xl bg-white/10 px-4 py-3"
-    required
-  >
-    <option value="" className="text-black">
-      Select a bike
-    </option>
+                <div className="rounded-xl bg-white/10 p-4">
+                  <p className="text-sm text-gray-400">Selected bike</p>
+                  <p className="font-semibold">
+                    {selectedBike.name} - ${selectedBike.price}/day
+                  </p>
+                </div>
+              ) : (
+                <select
+                  name="bikeId"
+                  value={form.bikeId}
+                  onChange={handleChange}
+                  className="w-full rounded-xl bg-white/10 px-4 py-3"
+                  required
+                >
+                  <option value="" className="text-black">
+                    Select a bike
+                  </option>
 
-    {bikes.map((bike) => (
-      <option key={bike._id} value={bike._id} className="text-black">
-        {bike.name} - ${bike.price}/day
-      </option>
-    ))}
-  </select>
-)}
+                  {bikes.map((bike) => (
+                    <option key={bike._id} value={bike._id} className="text-black">
+                      {bike.name} - ${bike.price}/day
+                    </option>
+                  ))}
+                </select>
+              )}
 
               <div className="grid gap-4 md:grid-cols-2">
                 <input
@@ -277,9 +279,12 @@ export default function BookingPage() {
                 placeholder="Notes"
                 className="w-full rounded-xl bg-white/10 px-4 py-3"
               />
-<p className="text-sm text-gray-400">
-  We’ll confirm availability via email or SMS before sending your payment link.
-</p>
+
+              <p className="text-sm text-gray-400">
+                We’ll confirm availability via email or SMS before sending your
+                payment link.
+              </p>
+
               <button
                 type="submit"
                 className="w-full rounded-full bg-white px-6 py-4 font-bold text-black transition hover:bg-gray-200"
@@ -289,15 +294,27 @@ export default function BookingPage() {
             </form>
           </div>
 
-          <div className="rounded-2xl bg-white/5 p-4 shadow-xl sticky top-20">
+          <div className="sticky top-20 rounded-2xl bg-white/5 p-4 shadow-xl">
             <img
               src="/images/booking-info.jpeg"
               alt="Wheely Good booking information"
-              className="w-full rounded-xl object-cover max-h-[800px]"
+              className="max-h-[800px] w-full rounded-xl object-cover"
             />
           </div>
         </div>
       </div>
     </main>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black p-10 text-white">Loading...</div>
+      }
+    >
+      <BookingContent />
+    </Suspense>
   );
 }
