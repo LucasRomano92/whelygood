@@ -30,13 +30,7 @@ router.put("/:id/status", authMiddleware, async (req, res) => {
   try {
     const { status } = req.body;
 
-    const allowedStatuses = [
-      "paid",
-      "pending",
-      "shipped",
-      "delivered",
-      "cancelled",
-    ];
+    const allowedStatuses = ["paid", "shipped"];
 
     if (!allowedStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid status" });

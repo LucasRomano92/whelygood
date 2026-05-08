@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
 
 type Props = {
   bikeId: string;
@@ -26,7 +27,7 @@ export default function BikeActions({ bikeId, category }: Props) {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Error creating payment");
+        toast.error(data.error || "Error creating payment");
         return;
       }
 
@@ -35,7 +36,7 @@ export default function BikeActions({ bikeId, category }: Props) {
       }
     } catch (error) {
       console.error("Stripe error:", error);
-      alert("Server error creating payment");
+      toast.error("Server error creating payment");
     }
   };
 
@@ -55,7 +56,7 @@ export default function BikeActions({ bikeId, category }: Props) {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "PayPal error");
+        toast.error(data.error || "PayPal error");
         return;
       }
 
@@ -64,7 +65,7 @@ export default function BikeActions({ bikeId, category }: Props) {
       }
     } catch (error) {
       console.error("PayPal error:", error);
-      alert("Server error creating PayPal payment");
+      toast.error("Server error creating PayPal payment");
     }
   };
 

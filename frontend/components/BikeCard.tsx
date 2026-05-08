@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 type Bike = {
   _id: string;
@@ -34,11 +35,11 @@ export default function BikeCard({ bike }: { bike: Bike }) {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert("Error creating payment");
+        toast.error("Error creating payment");
       }
     } catch (error) {
       console.error(error);
-      alert("Payment error");
+      toast.error("Payment error");
     }
   };
 
@@ -60,11 +61,11 @@ export default function BikeCard({ bike }: { bike: Bike }) {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert("PayPal error");
+        toast.error("PayPal error");
       }
     } catch (error) {
       console.error(error);
-      alert("PayPal error");
+      toast.error("PayPal error");
     }
   };
 

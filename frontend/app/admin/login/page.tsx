@@ -2,18 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function AdminLogin() {
   const router = useRouter();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: any) => {
     e.preventDefault();
 
     try {
+      setLoading(true);
+
       const res = await fetch("http://localhost:4000/admin/login", {
         method: "POST",
         headers: {
@@ -28,50 +31,54 @@ export default function AdminLogin() {
         throw new Error(data.message);
       }
 
-      // 💾 guardar token
-      localStorage.setItem("token", data.token);
+      // 💾 guardar token (FIX CLAVE)
+      localStorage.setItem("adminToken", data.token);
+      localStorage.setItem("token", data.token); // backup
+
+      toast.success("Welcome admin 🚴‍♂️");
 
       // 🚀 ir al admin
       router.push("/admin");
 
     } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+    <div className="flex min-h-screen items-center justify-center bg-black text-white">
       <form
         onSubmit={handleLogin}
-        className="bg-white/10 p-8 rounded-2xl w-[320px] space-y-4"
+        className="w-[320px] space-y-4 rounded-2xl bg-white/10 p-8"
       >
-        <h2 className="text-2xl font-bold text-center">Admin Login</h2>
+        <h2 className="text-center text-2xl font-bold">Admin Login</h2>
 
         <input
           type="text"
           placeholder="Username"
-          className="w-full p-2 rounded bg-black border border-white/20"
+          className="w-full rounded border border-white/20 bg-black p-2"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          disabled={loading}
         />
 
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-2 rounded bg-black border border-white/20"
+          className="w-full rounded border border-white/20 bg-black p-2"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
         />
-
-        {error && (
-          <p className="text-red-400 text-sm text-center">{error}</p>
-        )}
 
         <button
           type="submit"
-          className="w-full bg-white text-black py-2 rounded hover:bg-gray-200"
+          disabled={loading}
+          className="w-full rounded bg-white py-2 text-black transition hover:bg-gray-200 disabled:opacity-50"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

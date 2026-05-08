@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 type Bike = {
   _id: string;
@@ -94,32 +95,32 @@ export default function BookingPage() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(form.email)) {
-      alert("Invalid email");
+      toast.error("Invalid email");
       return;
     }
 
     if (form.phone.replace(/\D/g, "").length < 8) {
-      alert("Invalid phone number");
+      toast.error("Invalid phone number");
       return;
     }
 
     if (!selectedBike) {
-      alert("Select a bike");
+      toast.info("Select a bike");
       return;
     }
 
     if (!form.startDate || !form.endDate) {
-      alert("Select dates");
+      toast.info("Select dates");
       return;
     }
 
     if (start < today) {
-      alert("Start date cannot be in the past");
+      toast.error("Start date cannot be in the past");
       return;
     }
 
     if (end < start) {
-      alert("End date must be after start date");
+      toast.error("End date must be after start date");
       return;
     }
 
@@ -127,12 +128,12 @@ export default function BookingPage() {
     const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
     if (days <= 0) {
-      alert("Invalid date range");
+      toast.error("Invalid date range");
       return;
     }
 
     if (days > 30) {
-      alert("Max rental is 30 days");
+      toast.error("Max rental is 30 days");
       return;
     }
 
@@ -154,11 +155,11 @@ export default function BookingPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.message || "Error");
+    toast.error(data.message || "Error");
       return;
     }
 
-    alert("Request sent successfully ✅");
+    toast.success("Request sent successfully ✅");
 
     setForm({
       name: "",

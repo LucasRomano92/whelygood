@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function AdminSettingsPage() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function AdminSettingsPage() {
       const value = Number(shippingPrice);
 
       if (Number.isNaN(value) || value < 0) {
-        alert("Please enter a valid shipping price");
+        toast.error("Please enter a valid shipping price");
         return;
       }
 
@@ -67,10 +68,10 @@ export default function AdminSettingsPage() {
       const data = await res.json();
       setShippingPrice(String(data.value));
 
-      alert("Shipping price updated successfully");
+      toast.success("Shipping price updated successfully");
     } catch (error) {
       console.error("Error updating shipping price:", error);
-      alert("Error updating shipping price");
+      toast.error("Error updating shipping price");
     } finally {
       setSaving(false);
     }

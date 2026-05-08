@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Bike = {
   _id: string;
@@ -19,7 +20,11 @@ type Bike = {
 export default function AdminBikesPage() {
   const [bikes, setBikes] = useState<Bike[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [loadingBikes, setLoadingBikes] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -34,10 +39,29 @@ export default function AdminBikesPage() {
     isActive: true,
   });
 
+  const getToken = () => {
+    return localStorage.getItem("adminToken") || localStorage.getItem("token");
+  };
+
   const fetchBikes = async () => {
-    const res = await fetch("http://localhost:4000/bikes");
-    const data = await res.json();
-    setBikes(data);
+    try {
+      setLoadingBikes(true);
+
+      const res = await fetch("http://localhost:4000/bikes");
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message || "Error loading bikes");
+        return;
+      }
+
+      setBikes(data);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error loading bikes");
+    } finally {
+      setLoadingBikes(false);
+    }
   };
 
   useEffect(() => {
@@ -57,6 +81,7 @@ export default function AdminBikesPage() {
       category: "rent",
       isActive: true,
     });
+
     setEditingId(null);
   };
 
@@ -100,7 +125,7 @@ export default function AdminBikesPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message || "Upload failed");
+        toast.error(data.message || "Upload failed");
         return;
       }
 
@@ -109,10 +134,10 @@ export default function AdminBikesPage() {
         image: data.url,
       }));
 
-      alert("Main image uploaded ✅");
+      toast.success("Main image uploaded ✅");
     } catch (error) {
       console.error(error);
-      alert("Upload error");
+      toast.error("Upload error");
     } finally {
       setUploading(false);
     }
@@ -151,10 +176,10 @@ export default function AdminBikesPage() {
         galleryImages: [...prev.galleryImages, ...uploadedUrls],
       }));
 
-      alert("Gallery images uploaded ✅");
+      toast.success("Gallery images uploaded ✅");
     } catch (error) {
       console.error(error);
-      alert("Gallery upload error");
+      toast.error("Gallery upload error");
     } finally {
       setUploading(false);
     }
@@ -171,53 +196,63 @@ export default function AdminBikesPage() {
     e.preventDefault();
 
     if (!form.image) {
-      alert("Please upload a main image first");
+      toast.error("Please upload a main image first");
       return;
     }
 
-    const token = localStorage.getItem("token");
+    try {
+      setSaving(true);
 
-    const payload = {
-      name: form.name,
-      model: form.model,
-      description: form.description,
-      price: Number(form.price),
-      image: form.image,
-      galleryImages: form.galleryImages,
-      features: form.featuresText
-        .split("\n")
-        .map((feature) => feature.trim())
-        .filter((feature) => feature !== ""),
-      videoUrl: form.videoUrl,
-      category: form.category,
-      isActive: form.isActive,
-    };
+      const token = getToken();
 
-    const url = editingId
-      ? `http://localhost:4000/bikes/${editingId}`
-      : "http://localhost:4000/bikes";
+      const payload = {
+        name: form.name,
+        model: form.model,
+        description: form.description,
+        price: Number(form.price),
+        image: form.image,
+        galleryImages: form.galleryImages,
+        features: form.featuresText
+          .split("\n")
+          .map((feature) => feature.trim())
+          .filter((feature) => feature !== ""),
+        videoUrl: form.videoUrl,
+        category: form.category,
+        isActive: form.isActive,
+      };
 
-    const method = editingId ? "PUT" : "POST";
+      const url = editingId
+        ? `http://localhost:4000/bikes/${editingId}`
+        : "http://localhost:4000/bikes";
 
-    const res = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+      const method = editingId ? "PUT" : "POST";
 
-    const data = await res.json();
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (!res.ok) {
-      alert(data.message || "Something went wrong");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message || "Something went wrong");
+        return;
+      }
+
+      toast.success(editingId ? "Bike updated ✅" : "Bike created ✅");
+
+      resetForm();
+      await fetchBikes();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error saving bike");
+    } finally {
+      setSaving(false);
     }
-
-    alert(editingId ? "Bike updated ✅" : "Bike created ✅");
-    resetForm();
-    fetchBikes();
   };
 
   const handleEdit = (bike: Bike) => {
@@ -244,22 +279,31 @@ export default function AdminBikesPage() {
 
     if (!confirmDelete) return;
 
-    const token = localStorage.getItem("token");
+    try {
+      setDeletingId(id);
 
-    const res = await fetch(`http://localhost:4000/bikes/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const token = getToken();
 
-    if (!res.ok) {
-      alert("Error deleting bike");
-      return;
+      const res = await fetch(`http://localhost:4000/bikes/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        toast.error("Error deleting bike");
+        return;
+      }
+
+      toast.success("Bike deleted 🗑️");
+      await fetchBikes();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error deleting bike");
+    } finally {
+      setDeletingId(null);
     }
-
-    alert("Bike deleted 🗑️");
-    fetchBikes();
   };
 
   return (
@@ -286,7 +330,8 @@ export default function AdminBikesPage() {
               onChange={handleChange}
               placeholder="Bike name"
               required
-              className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+              disabled={saving}
+              className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
             />
 
             <input
@@ -294,7 +339,8 @@ export default function AdminBikesPage() {
               value={form.model}
               onChange={handleChange}
               placeholder="Model"
-              className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+              disabled={saving}
+              className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
             />
 
             <input
@@ -304,14 +350,16 @@ export default function AdminBikesPage() {
               onChange={handleChange}
               placeholder="Price"
               required
-              className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+              disabled={saving}
+              className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
             />
 
             <select
               name="category"
               value={form.category}
               onChange={handleChange}
-              className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+              disabled={saving}
+              className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
             >
               <option value="rent">Rentals</option>
               <option value="shop">Shop</option>
@@ -325,7 +373,8 @@ export default function AdminBikesPage() {
             placeholder="Description"
             required
             rows={4}
-            className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+            disabled={saving}
+            className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
           />
 
           <textarea
@@ -338,7 +387,8 @@ Aluminium frame
 Disc brakes
 Helmet included`}
             rows={5}
-            className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+            disabled={saving}
+            className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
           />
 
           <input
@@ -346,7 +396,8 @@ Helmet included`}
             value={form.videoUrl}
             onChange={handleChange}
             placeholder="Video URL optional"
-            className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+            disabled={saving}
+            className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
           />
 
           <div className="space-y-3 rounded-2xl border border-white/10 bg-black p-4">
@@ -358,7 +409,8 @@ Helmet included`}
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
-              className="block w-full text-sm text-white/70 file:mr-4 file:rounded-full file:border-0 file:bg-white file:px-5 file:py-2 file:font-semibold file:text-black"
+              disabled={uploading || saving}
+              className="block w-full text-sm text-white/70 file:mr-4 file:rounded-full file:border-0 file:bg-white file:px-5 file:py-2 file:font-semibold file:text-black disabled:opacity-50"
             />
 
             {uploading && (
@@ -384,7 +436,8 @@ Helmet included`}
               accept="image/*"
               multiple
               onChange={handleGalleryUpload}
-              className="block w-full text-sm text-white/70 file:mr-4 file:rounded-full file:border-0 file:bg-white file:px-5 file:py-2 file:font-semibold file:text-black"
+              disabled={uploading || saving}
+              className="block w-full text-sm text-white/70 file:mr-4 file:rounded-full file:border-0 file:bg-white file:px-5 file:py-2 file:font-semibold file:text-black disabled:opacity-50"
             />
 
             {form.galleryImages.length > 0 && (
@@ -400,7 +453,8 @@ Helmet included`}
                     <button
                       type="button"
                       onClick={() => removeGalleryImage(index)}
-                      className="absolute right-2 top-2 rounded-full bg-black/80 px-3 py-1 text-xs text-white"
+                      disabled={saving}
+                      className="absolute right-2 top-2 rounded-full bg-black/80 px-3 py-1 text-xs text-white disabled:opacity-50"
                     >
                       X
                     </button>
@@ -416,6 +470,7 @@ Helmet included`}
               name="isActive"
               checked={form.isActive}
               onChange={handleChange}
+              disabled={saving}
             />
             Show this bike on website
           </label>
@@ -423,17 +478,24 @@ Helmet included`}
           <div className="flex gap-3">
             <button
               type="submit"
-              disabled={uploading}
+              disabled={uploading || saving}
               className="rounded-full bg-white px-6 py-3 font-semibold text-black transition hover:bg-white/80 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {editingId ? "Update bike" : "Create bike"}
+              {saving
+                ? editingId
+                  ? "Updating..."
+                  : "Creating..."
+                : editingId
+                ? "Update bike"
+                : "Create bike"}
             </button>
 
             {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
+                disabled={saving}
+                className="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Cancel edit
               </button>
@@ -444,76 +506,92 @@ Helmet included`}
         <section className="mt-12">
           <h2 className="text-2xl font-semibold">Current bikes</h2>
 
-          <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {bikes.map((bike) => (
-              <div
-                key={bike._id}
-                className="overflow-hidden rounded-3xl border border-white/10 bg-white/5"
-              >
-                {bike.image?.startsWith("http") ? (
-                  <img
-                    src={bike.image}
-                    alt={bike.name}
-                    className="h-52 w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-52 w-full items-center justify-center bg-white/10 text-sm text-white/50">
-                    No valid image
-                  </div>
-                )}
+          {loadingBikes ? (
+            <p className="mt-6 text-white/50">Loading bikes...</p>
+          ) : bikes.length === 0 ? (
+            <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-8 text-center text-white/50">
+              No bikes yet.
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {bikes.map((bike) => {
+                const isDeleting = deletingId === bike._id;
 
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-xl font-semibold">{bike.name}</h3>
-                      <p className="text-sm text-white/50">{bike.model}</p>
+                return (
+                  <div
+                    key={bike._id}
+                    className="overflow-hidden rounded-3xl border border-white/10 bg-white/5"
+                  >
+                    {bike.image?.startsWith("http") ? (
+                      <img
+                        src={bike.image}
+                        alt={bike.name}
+                        className="h-52 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-52 w-full items-center justify-center bg-white/10 text-sm text-white/50">
+                        No valid image
+                      </div>
+                    )}
+
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-xl font-semibold">
+                            {bike.name}
+                          </h3>
+                          <p className="text-sm text-white/50">{bike.model}</p>
+                        </div>
+
+                        <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-black">
+                          {bike.category}
+                        </span>
+                      </div>
+
+                      <p className="mt-3 text-sm text-white/60">
+                        {bike.description}
+                      </p>
+
+                      <p className="mt-4 text-lg font-bold">${bike.price}</p>
+
+                      <p className="mt-2 text-sm">
+                        Gallery: {bike.galleryImages?.length || 0} images
+                      </p>
+
+                      <p className="mt-2 text-sm">
+                        Status:{" "}
+                        <span
+                          className={
+                            bike.isActive ? "text-green-400" : "text-red-400"
+                          }
+                        >
+                          {bike.isActive ? "Active" : "Hidden"}
+                        </span>
+                      </p>
+
+                      <div className="mt-5 flex gap-3">
+                        <button
+                          onClick={() => handleEdit(bike)}
+                          disabled={isDeleting || saving}
+                          className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(bike._id)}
+                          disabled={isDeleting || saving}
+                          className="rounded-full border border-red-400/40 px-4 py-2 text-sm font-semibold text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {isDeleting ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
                     </div>
-
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-black">
-                      {bike.category}
-                    </span>
                   </div>
-
-                  <p className="mt-3 text-sm text-white/60">
-                    {bike.description}
-                  </p>
-
-                  <p className="mt-4 text-lg font-bold">${bike.price}</p>
-
-                  <p className="mt-2 text-sm">
-                    Gallery: {bike.galleryImages?.length || 0} images
-                  </p>
-
-                  <p className="mt-2 text-sm">
-                    Status:{" "}
-                    <span
-                      className={
-                        bike.isActive ? "text-green-400" : "text-red-400"
-                      }
-                    >
-                      {bike.isActive ? "Active" : "Hidden"}
-                    </span>
-                  </p>
-
-                  <div className="mt-5 flex gap-3">
-                    <button
-                      onClick={() => handleEdit(bike)}
-                      className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(bike._id)}
-                      className="rounded-full border border-red-400/40 px-4 py-2 text-sm font-semibold text-red-300"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       </div>
     </main>

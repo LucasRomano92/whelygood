@@ -69,12 +69,7 @@ export default function AdminPage() {
     <main className="relative min-h-screen bg-black px-6 py-24 text-white">
       
       {/* 🔥 Logout */}
-      <button
-        onClick={handleLogout}
-        className="absolute top-6 right-6 bg-white text-black px-4 py-2 rounded-full text-sm hover:bg-gray-200"
-      >
-        Logout
-      </button>
+    
 
       <div className="mx-auto max-w-6xl">
         <h1 className="text-4xl font-bold">Bookings Admin</h1>
