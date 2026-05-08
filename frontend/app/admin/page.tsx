@@ -22,12 +22,7 @@ export default function AdminDashboard() {
 
   return (
     <main className="relative min-h-screen bg-black px-6 py-24 text-white">
-      <button
-        onClick={handleLogout}
-        className="absolute right-6 top-6 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-gray-200"
-      >
-        Logout
-      </button>
+     
 
       <div className="mx-auto max-w-5xl">
         <p className="mb-2 text-sm uppercase tracking-[0.3em] text-yellow-400">
