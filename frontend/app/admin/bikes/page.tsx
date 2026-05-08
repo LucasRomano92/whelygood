@@ -284,12 +284,15 @@ export default function AdminBikesPage() {
 
       const token = getToken();
 
-      const res = await fetch(`http://localhost:4000/bikes/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const res = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/bikes/${id}`,
+  {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
       if (!res.ok) {
         toast.error("Error deleting bike");

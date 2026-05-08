@@ -12,7 +12,9 @@ type Bike = {
 };
 
 async function getRentalBikes() {
-  const res = await fetch("http://localhost:4000/bikes", {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const res = await fetch(`${API_URL}/bikes`, {
     cache: "no-store",
   });
 
@@ -47,8 +49,6 @@ export default async function RentalsPage() {
               Choose the bike that fits your ride and book it with a simple form.
             </p>
           </div>
-
-        
         </div>
 
         {bikes.length === 0 ? (

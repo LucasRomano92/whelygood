@@ -14,7 +14,7 @@ export default function BikeActions({ bikeId, category }: Props) {
   const handleCardPayment = async () => {
     try {
       const res = await fetch(
-        "http://localhost:4000/payment/create-checkout-session",
+  `${process.env.NEXT_PUBLIC_API_URL}/payment/create-checkout-session`,
         {
           method: "POST",
           headers: {
@@ -43,7 +43,7 @@ export default function BikeActions({ bikeId, category }: Props) {
   const handlePayPalPayment = async () => {
     try {
       const res = await fetch(
-        "http://localhost:4000/payment/paypal/create-order",
+  `${process.env.NEXT_PUBLIC_API_URL}/payment/paypal/create-order`,
         {
           method: "POST",
           headers: {

@@ -29,7 +29,7 @@ export default function Footer() {
               className="flex w-fit items-center gap-3 transition hover:text-white"
             >
               <FiMail size={18} />
-              info@wheelygood.com
+              wheelygoodteam@gmail.com
             </a>
 
             <a
@@ -39,11 +39,11 @@ export default function Footer() {
               className="flex w-fit items-center gap-3 transition hover:text-green-400"
             >
               <FaWhatsapp size={18} />
-              +61 400 000 000
+              +61493786925
             </a>
 
             <a
-              href="https://instagram.com/wheelygood"
+              href="https://www.instagram.com/wheelygood_byronbay/"
               target="_blank"
               rel="noopener noreferrer"
               className="group flex w-fit items-center gap-3 transition"
@@ -52,7 +52,7 @@ export default function Footer() {
                 <FaInstagram size={16} />
               </span>
               <span className="transition group-hover:text-pink-400">
-                @wheelygood
+                @wheelygood_byronbay
               </span>
             </a>
           </div>

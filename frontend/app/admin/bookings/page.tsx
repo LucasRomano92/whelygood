@@ -37,11 +37,11 @@ export default function AdminPage() {
   try {
     const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:4000/booking", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+ const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/booking`, {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
     if (!res.ok) {
       throw new Error("Unauthorized");

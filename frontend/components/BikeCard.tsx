@@ -20,7 +20,7 @@ export default function BikeCard({ bike }: { bike: Bike }) {
   const handleBuyNow = async () => {
     try {
       const res = await fetch(
-        "http://localhost:4000/payment/create-checkout-session",
+  `${process.env.NEXT_PUBLIC_API_URL}/payment/create-checkout-session`,
         {
           method: "POST",
           headers: {
@@ -43,32 +43,7 @@ export default function BikeCard({ bike }: { bike: Bike }) {
     }
   };
 
-  const handlePayPal = async () => {
-    try {
-      const res = await fetch(
-        "http://localhost:4000/payment/paypal/create-order",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ bikeId: bike._id }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        toast.error("PayPal error");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("PayPal error");
-    }
-  };
-
+  
   return (
     <article className="overflow-hidden rounded-[28px] border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:border-white/20">
       <Link href={`/bikes/${bike._id}`} className="block">
@@ -119,17 +94,12 @@ export default function BikeCard({ bike }: { bike: Bike }) {
             <div className="flex gap-2">
               <button
                 onClick={handleBuyNow}
-                className="rounded-full border border-white px-4 py-2 text-xs uppercase hover:bg-white hover:text-black"
+                className="rounded-full border border-white px-4 py-2 text-xs uppercase hover:bg-yellow-400 hover:text-black"
               >
-                Card
+                PAY NOW
               </button>
 
-              <button
-                onClick={handlePayPal}
-                className="rounded-full border border-yellow-400 px-4 py-2 text-xs uppercase text-yellow-400 hover:bg-yellow-400 hover:text-black"
-              >
-                PayPal
-              </button>
+           
             </div>
           )}
         </div>

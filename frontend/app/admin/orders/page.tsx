@@ -26,8 +26,7 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
 
   const fetchOrders = useCallback(async () => {
     try {

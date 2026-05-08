@@ -23,9 +23,7 @@ export default function Hero() {
         <h1 className="text-5xl font-extrabold uppercase leading-tight md:text-7xl">
           Wheely Good
         </h1>
-        <p className="mt-2 text-sm uppercase tracking-[0.3em] text-white/60">
-  Since 2024
-</p>
+        
 
 
         <p className="mt-6 text-base text-neutral-200 md:text-lg">

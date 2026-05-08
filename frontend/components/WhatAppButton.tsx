@@ -1,7 +1,7 @@
 "use client";
 
 export default function WhatsAppButton() {
-  const phone = "61491971203"; // 👈 poné tu número sin +
+  const phone = "61493786925"; // 👈 poné tu número sin +
   const message = "Hi! I'm interested in renting a bike 🚴";
 
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;

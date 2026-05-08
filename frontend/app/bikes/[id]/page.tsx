@@ -15,7 +15,9 @@ type Bike = {
 };
 
 async function getBike(id: string): Promise<Bike | null> {
-  const res = await fetch(`http://localhost:4000/bikes/${id}`, {
+const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/bikes/${id}`,
+    {
     cache: "no-store",
   });
 

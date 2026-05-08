@@ -17,13 +17,13 @@ export default function AdminLogin() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:4000/admin/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/login`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ username, password }),
+});
 
       const data = await res.json();
 

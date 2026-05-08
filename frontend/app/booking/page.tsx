@@ -33,7 +33,7 @@ export default function BookingPage() {
 
   useEffect(() => {
     const fetchBikes = async () => {
-      const res = await fetch("http://localhost:4000/bikes");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bikes`);
       const data = await res.json();
 
       const rentalBikes = data.filter((b: Bike) => b.category === "rent");
@@ -144,7 +144,7 @@ export default function BookingPage() {
       totalPrice: days * selectedBike.price,
     };
 
-    const res = await fetch("http://localhost:4000/booking", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bikes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

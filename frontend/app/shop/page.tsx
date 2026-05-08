@@ -12,7 +12,9 @@ type Bike = {
 };
 
 async function getShopBikes() {
-  const res = await fetch("http://localhost:4000/bikes", {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const res = await fetch(`${API_URL}/bikes`, {
     cache: "no-store",
   });
 
@@ -47,8 +49,6 @@ export default async function ShopPage() {
               Explore our available bikes and enquire directly.
             </p>
           </div>
-
-          
         </div>
 
         {bikes.length === 0 ? (
