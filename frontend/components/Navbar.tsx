@@ -71,13 +71,19 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          <Link
+            href="/admin/login"
+            className="rounded-full border border-yellow-400/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-yellow-400 transition-all duration-300 hover:scale-105 hover:bg-yellow-400 hover:text-black"
+          >
+            Admin
+          </Link>
         </nav>
 
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-white/10 md:hidden"
-        >
+className="flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-white/5 text-xl font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-white/10 md:hidden"        >
           {open ? "✕" : "☰"}
         </button>
       </div>
@@ -104,6 +110,14 @@ export default function Navbar() {
                 </Link>
               );
             })}
+
+            <Link
+              href="/admin/login"
+              onClick={closeMenu}
+              className="rounded-xl border border-yellow-400/40 bg-yellow-400/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-yellow-400 transition-all duration-300 hover:scale-[1.02] hover:bg-yellow-400 hover:text-black"
+            >
+              Admin
+            </Link>
           </div>
         </nav>
       )}
