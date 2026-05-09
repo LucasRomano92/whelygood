@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 type Bike = {
@@ -18,6 +19,9 @@ type Bike = {
 };
 
 export default function AdminBikesPage() {
+  const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
+
   const [bikes, setBikes] = useState<Bike[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -40,14 +44,21 @@ export default function AdminBikesPage() {
   });
 
   const getToken = () => {
-    return localStorage.getItem("adminToken") || localStorage.getItem("token");
+    return localStorage.getItem("token") || localStorage.getItem("adminToken");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("adminToken");
+    toast.success("Logged out successfully");
+    router.push("/admin/login");
   };
 
   const fetchBikes = async () => {
     try {
       setLoadingBikes(true);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bikes`);
+      const res = await fetch(`${API_URL}/bikes`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -65,6 +76,13 @@ export default function AdminBikesPage() {
   };
 
   useEffect(() => {
+    const token = getToken();
+
+    if (!token) {
+      router.push("/admin/login");
+      return;
+    }
+
     fetchBikes();
   }, []);
 
@@ -117,7 +135,7 @@ export default function AdminBikesPage() {
     try {
       setUploading(true);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+      const res = await fetch(`${API_URL}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -134,7 +152,7 @@ export default function AdminBikesPage() {
         image: data.url,
       }));
 
-      toast.success("Main image uploaded ✅");
+      toast.success("Main image uploaded");
     } catch (error) {
       console.error(error);
       toast.error("Upload error");
@@ -159,23 +177,31 @@ export default function AdminBikesPage() {
         const formData = new FormData();
         formData.append("image", files[i]);
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+        const res = await fetch(`${API_URL}/upload`, {
+          method: "POST",
           body: formData,
         });
 
         const data = await res.json();
 
-        if (res.ok && data.url) {
+        if (!res.ok) {
+          toast.error(data.message || "Gallery image upload failed");
+          continue;
+        }
+
+        if (data.url) {
           uploadedUrls.push(data.url);
         }
       }
 
-      setForm((prev) => ({
-        ...prev,
-        galleryImages: [...prev.galleryImages, ...uploadedUrls],
-      }));
+      if (uploadedUrls.length > 0) {
+        setForm((prev) => ({
+          ...prev,
+          galleryImages: [...prev.galleryImages, ...uploadedUrls],
+        }));
 
-      toast.success("Gallery images uploaded ✅");
+        toast.success("Gallery images uploaded");
+      }
     } catch (error) {
       console.error(error);
       toast.error("Gallery upload error");
@@ -194,21 +220,39 @@ export default function AdminBikesPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const token = getToken();
+
+    if (!token) {
+      toast.error("Session expired. Please login again.");
+      router.push("/admin/login");
+      return;
+    }
+
+    if (!form.name || !form.description || !form.price) {
+      toast.error("Please complete all required fields");
+      return;
+    }
+
     if (!form.image) {
       toast.error("Please upload a main image first");
+      return;
+    }
+
+    const price = Number(form.price);
+
+    if (Number.isNaN(price) || price < 0) {
+      toast.error("Please enter a valid price");
       return;
     }
 
     try {
       setSaving(true);
 
-      const token = getToken();
-
       const payload = {
         name: form.name,
         model: form.model,
         description: form.description,
-        price: Number(form.price),
+        price,
         image: form.image,
         galleryImages: form.galleryImages,
         features: form.featuresText
@@ -220,9 +264,9 @@ export default function AdminBikesPage() {
         isActive: form.isActive,
       };
 
-     const url = editingId
-  ? `${process.env.NEXT_PUBLIC_API_URL}/bikes/${editingId}`
-  : `${process.env.NEXT_PUBLIC_API_URL}/bikes`;
+      const url = editingId
+        ? `${API_URL}/bikes/${editingId}`
+        : `${API_URL}/bikes`;
 
       const method = editingId ? "PUT" : "POST";
 
@@ -242,7 +286,7 @@ export default function AdminBikesPage() {
         return;
       }
 
-      toast.success(editingId ? "Bike updated ✅" : "Bike created ✅");
+      toast.success(editingId ? "Bike updated successfully" : "Bike created successfully");
 
       resetForm();
       await fetchBikes();
@@ -278,27 +322,30 @@ export default function AdminBikesPage() {
 
     if (!confirmDelete) return;
 
+    const token = getToken();
+
+    if (!token) {
+      toast.error("Session expired. Please login again.");
+      router.push("/admin/login");
+      return;
+    }
+
     try {
       setDeletingId(id);
 
-      const token = getToken();
-
-    const res = await fetch(
-  `${process.env.NEXT_PUBLIC_API_URL}/bikes/${id}`,
-  {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-);
+      const res = await fetch(`${API_URL}/bikes/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!res.ok) {
         toast.error("Error deleting bike");
         return;
       }
 
-      toast.success("Bike deleted 🗑️");
+      toast.success("Bike deleted successfully");
       await fetchBikes();
     } catch (error) {
       console.error(error);
@@ -309,9 +356,32 @@ export default function AdminBikesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black px-6 py-24 text-white">
+    <main className="min-h-screen bg-black px-4 py-24 text-white sm:px-6">
+      <div className="fixed left-0 top-0 z-50 flex w-full items-center justify-between border-b border-white/10 bg-black/90 px-4 py-3 backdrop-blur-md">
+        <button
+          onClick={() => router.push("/admin")}
+          className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+        >
+          Home
+        </button>
+
+        <button
+          onClick={() => router.back()}
+          className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white"
+        >
+          Back
+        </button>
+
+        <button
+          onClick={handleLogout}
+          className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-black"
+        >
+          Logout
+        </button>
+      </div>
+
       <div className="mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold">Admin Bikes</h1>
+        <h1 className="text-3xl font-bold sm:text-4xl">Admin Bikes</h1>
 
         <p className="mt-2 text-white/60">
           Create, edit and manage bikes for Rentals and Shop.
@@ -319,7 +389,7 @@ export default function AdminBikesPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="mt-10 grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-6"
+          className="mt-10 grid gap-4 rounded-3xl border border-white/10 bg-white/5 p-5 sm:p-6"
         >
           <h2 className="text-2xl font-semibold">
             {editingId ? "Edit bike" : "Create new bike"}
@@ -443,7 +513,7 @@ Helmet included`}
             />
 
             {form.galleryImages.length > 0 && (
-              <div className="grid gap-3 md:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
                 {form.galleryImages.map((img, index) => (
                   <div key={index} className="relative">
                     <img
@@ -477,7 +547,7 @@ Helmet included`}
             Show this bike on website
           </label>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="submit"
               disabled={uploading || saving}
