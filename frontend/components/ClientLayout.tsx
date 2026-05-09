@@ -4,8 +4,13 @@ import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatAppButton";
+import { Toaster } from "sonner";
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
 
@@ -14,9 +19,21 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       {!isAdmin && <Navbar />}
 
       {children}
+
       {!isAdmin && <WhatsAppButton />}
 
-      {!isAdmin && <Footer />} {/* 👈 ESTA ES LA CLAVE */}
+      {!isAdmin && <Footer />}
+
+      <Toaster
+        position="top-center"
+        richColors
+        closeButton
+        toastOptions={{
+          style: {
+            zIndex: 999999,
+          },
+        }}
+      />
     </>
   );
 }

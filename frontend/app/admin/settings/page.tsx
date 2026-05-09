@@ -23,7 +23,7 @@ export default function AdminSettingsPage() {
 
     const fetchShipping = async () => {
       try {
-        const res = await fetch(`${API_URL}/settings/shipping`);
+        const res = await fetch(`${API_URL}/api/settings/shipping`);
 
         if (!res.ok) {
           throw new Error("Failed to fetch shipping price");
@@ -33,6 +33,7 @@ export default function AdminSettingsPage() {
         setShippingPrice(String(data.value));
       } catch (error) {
         console.error("Error fetching shipping price:", error);
+        toast.error("Error fetching shipping price");
       } finally {
         setLoading(false);
       }
@@ -52,7 +53,7 @@ export default function AdminSettingsPage() {
         return;
       }
 
-      const res = await fetch(`${API_URL}/settings/shipping`, {
+      const res = await fetch(`${API_URL}/api/settings/shipping`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -92,13 +93,27 @@ export default function AdminSettingsPage() {
   return (
     <main className="relative min-h-screen bg-black px-6 py-24 text-white">
       <button
+        onClick={() => router.push("/admin")}
+        className="absolute left-6 top-6 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+      >
+        Home
+      </button>
+
+      <button
+        onClick={() => router.back()}
+        className="absolute left-24 top-6 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+      >
+        Back
+      </button>
+
+      <button
         onClick={handleLogout}
         className="absolute right-6 top-6 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-gray-200"
       >
         Logout
       </button>
 
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl pt-12">
         <p className="mb-2 text-sm uppercase tracking-[0.3em] text-yellow-400">
           Admin Settings
         </p>
@@ -109,7 +124,7 @@ export default function AdminSettingsPage() {
           Change the standard shipping price used in Stripe Checkout.
         </p>
 
-        <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-8">
+        <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8">
           <label className="block text-sm font-semibold text-white/80">
             Shipping price AUD
           </label>
