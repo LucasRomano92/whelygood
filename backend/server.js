@@ -174,21 +174,25 @@ app.post("/booking", async (req, res) => {
     // =========================
     // 📧 EMAIL AL CLIENTE
     // =========================
-    await resend.emails.send({
-      from: "WheelyGood <onboarding@resend.dev>",
-      to: email,
-      subject: "Your booking request has been received 🚴",
-      html: `
-        <h2>Hi ${name}!</h2>
-        <p>Your request for <strong>${bike.name}</strong> has been received.</p>
-        <p>We will confirm availability and get back to you shortly.</p>
-        <br/>
-        <p><strong>Dates:</strong> ${startDate} → ${endDate}</p>
-        <p><strong>Total days:</strong> ${totalDays}</p>
-        <br/>
-        <p>Thanks for choosing WheelyGood 🚴</p>
-      `,
-    });
+  await resend.emails.send({
+  from: "WheelyGood <onboarding@resend.dev>",
+  to: process.env.OWNER_EMAIL,
+  subject: "Your booking request has been received 🚴",
+  html: `
+    <h2>Hi ${name}!</h2>
+    <p>Your request for <strong>${bike.name}</strong> has been received.</p>
+    <p>We will confirm availability and get back to you shortly.</p>
+
+    <br/>
+
+    <p><strong>Dates:</strong> ${startDate} → ${endDate}</p>
+    <p><strong>Total days:</strong> ${totalDays}</p>
+
+    <br/>
+
+    <p>Thanks for choosing WheelyGood 🚴</p>
+  `,
+});
 
     // =========================
     // 📧 EMAIL AL DUEÑO
