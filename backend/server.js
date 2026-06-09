@@ -175,7 +175,7 @@ app.post("/booking", async (req, res) => {
     // 📧 EMAIL AL CLIENTE
     // =========================
     await resend.emails.send({
-      from: `"WheelyGood" <${process.env.EMAIL_USER}>`,
+      from: "WheelyGood <onboarding@resend.dev>",
       to: email,
       subject: "Your booking request has been received 🚴",
       html: `
