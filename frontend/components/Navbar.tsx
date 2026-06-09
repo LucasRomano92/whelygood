@@ -84,39 +84,38 @@ className="flex h-14 w-14 items-center justify-center rounded-full border border
       </div>
 
       {open && (
-        <nav className="border-t border-white/10 bg-black/95 px-6 py-4 md:hidden">
-          <div className="flex flex-col gap-3">
-            {links.map((item) => {
-              const href = getHref(item);
-              const isActive = pathname === href;
+  <nav className="border-t border-[#C8BEAA] bg-[#E7E0D0]/95 px-6 py-4 backdrop-blur-xl md:hidden">
+    <div className="flex flex-col gap-3">
+      {links.map((item) => {
+        const href = getHref(item);
+        const isActive = pathname === href;
 
-              return (
-                <Link
-                  key={item}
-                  href={href}
-                  onClick={closeMenu}
-                  className={`rounded-xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] transition-all duration-300 ${
-                    isActive
-                      ? "bg-white text-black"
-                      : "bg-white/5 text-neutral-200 hover:scale-[1.02] hover:bg-white/90 hover:text-black"
-                  }`}
-                >
-                  {item}
-                </Link>
-              );
-            })}
-<Link
-              href="/admin/login"
-              onClick={closeMenu}
-              className="rounded-xl border border-yellow-400/40 bg-yellow-400/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-yellow-400 transition-all duration-300 hover:scale-[1.02] hover:bg-yellow-400 hover:text-black"
-            >
-              Admin
+        return (
+          <Link
+            key={item}
+            href={href}
+            onClick={closeMenu}
+            className={`rounded-xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] transition-all duration-300 ${
+              isActive
+                ? "bg-[#1F2933] text-white"
+                : "bg-[#F8F7F2] text-[#4B5563] hover:scale-[1.02] hover:bg-white hover:text-[#1F2933]"
+            }`}
+          >
+            {item}
+          </Link>
+        );
+      })}
 
-            </Link>
-            
-          </div>
-        </nav>
-      )}
+      <Link
+        href="/admin/login"
+        onClick={closeMenu}
+        className="rounded-xl border border-[#C8BEAA] bg-[#F8F7F2] px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#1F2933] transition-all duration-300 hover:scale-[1.02] hover:bg-[#1F2933] hover:text-white"
+      >
+        Admin
+      </Link>
+    </div>
+  </nav>
+)}
     </header>
   );
 }
