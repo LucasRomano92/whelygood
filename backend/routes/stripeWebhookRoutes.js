@@ -1,20 +1,13 @@
 const express = require("express");
 const Stripe = require("stripe");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const Order = require("../models/Order");
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 📩 CONFIG EMAIL
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 router.post(
   "/webhook",
@@ -91,28 +84,29 @@ router.post(
 
       // 📧 EMAIL AL DUEÑO
       try {
-        await transporter.sendMail({
-          from: `"Wheely Good" <${process.env.EMAIL_USER}>`,
-          to: process.env.EMAIL_USER,
-          subject: "🚴‍♂️ New order - Wheely Good",
-          html: `
-            <h2>New Order Received</h2>
+      await resend.emails.send({
+  from: "Wheely Good <orders@wheelygoodrides.com.au>",
+  to: process.env.OWNER_EMAIL,
+  subject: "🚴‍♂️ New order - Wheely Good",
+  html: `
+    <h2>New Order Received</h2>
 
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Name:</strong> ${name}</p>
+    <p><strong>Email:</strong> ${email}</p>
 
-            <p><strong>Total:</strong> $${total} ${currency}</p>
+    <p><strong>Total:</strong> $${total} ${currency}</p>
 
-            <h3>Shipping Address</h3>
-            <p>
-              ${address?.line1 || ""}<br/>
-              ${address?.city || ""}<br/>
-              ${address?.state || ""}<br/>
-              ${address?.postal_code || ""}<br/>
-              ${address?.country || ""}
-            </p>
-          `,
-        });
+    <h3>Shipping Address</h3>
+
+    <p>
+      ${address?.line1 || ""}<br/>
+      ${address?.city || ""}<br/>
+      ${address?.state || ""}<br/>
+      ${address?.postal_code || ""}<br/>
+      ${address?.country || ""}
+    </p>
+  `,
+});
 
         console.log("✅ OWNER EMAIL SENT");
       } catch (err) {
@@ -121,27 +115,27 @@ router.post(
 
       // 📧 EMAIL AL CLIENTE
       try {
-        await transporter.sendMail({
-          from: `"Wheely Good" <${process.env.EMAIL_USER}>`,
-          to: email,
-          subject: "Your order is confirmed 🚴‍♂️",
-          html: `
-            <h2>Thank you for your purchase!</h2>
+        await resend.emails.send({
+  from: "Wheely Good <orders@wheelygoodrides.com.au>",
+  to: email,
+  subject: "Your order is confirmed 🚴‍♂️",
+  html: `
+    <h2>Thank you for your purchase!</h2>
 
-            <p>Hi ${name},</p>
+    <p>Hi ${name},</p>
 
-            <p>Your payment was received successfully.</p>
+    <p>Your payment was received successfully.</p>
 
-            <p><strong>Total paid:</strong> $${total} ${currency}</p>
+    <p><strong>Total paid:</strong> $${total} ${currency}</p>
 
-            <p>Our team will contact you shortly with the next steps.</p>
+    <p>Our team will contact you shortly with the next steps.</p>
 
-            <br/>
+    <br/>
 
-            <p>Thank you,</p>
-            <p><strong>Wheely Good Team</strong></p>
-          `,
-        });
+    <p>Thank you,</p>
+    <p><strong>Wheely Good Team</strong></p>
+  `,
+});
 
         console.log("✅ CUSTOMER EMAIL SENT");
       } catch (err) {
