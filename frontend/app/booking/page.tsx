@@ -178,140 +178,161 @@ function BookingContent() {
     setTotalPrice(0);
   };
 
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black px-4 py-12 text-white">
-      <div className="mx-auto max-w-6xl">
-        <h1 className="mb-8 text-center text-3xl font-bold md:text-4xl">
+return (
+  <main className="min-h-screen bg-[#F8F7F2] px-4 py-16">
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-12 text-center">
+        <p className="text-sm uppercase tracking-[0.25em] text-[#7A7468]">
+          Rentals
+        </p>
+
+        <h1 className="mt-3 text-4xl font-extrabold text-[#1F2933] md:text-6xl">
           Book Your Ride 🚴‍♂️
         </h1>
 
-        <div className="grid gap-10 md:grid-cols-2 md:items-start">
-          <div className="rounded-2xl bg-white/5 p-6 shadow-xl">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                type="text"
-                placeholder="Your Name"
-                className="w-full rounded-xl bg-white/10 px-4 py-3"
-                required
-              />
+        <p className="mx-auto mt-4 max-w-2xl text-[#5B6470]">
+          Reserve your bike and explore Byron Bay at your own pace.
+        </p>
+      </div>
 
-              <input
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                type="email"
-                placeholder="Email"
-                className="w-full rounded-xl bg-white/10 px-4 py-3"
-                required
-              />
-
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                type="text"
-                placeholder="Phone"
-                className="w-full rounded-xl bg-white/10 px-4 py-3"
-                required
-              />
-
-              {selectedBike ? (
-                <div className="rounded-xl bg-white/10 p-4">
-                  <p className="text-sm text-gray-400">Selected bike</p>
-                  <p className="font-semibold">
-                    {selectedBike.name} - ${selectedBike.price}/day
-                  </p>
-                </div>
-              ) : (
-                <select
-                  name="bikeId"
-                  value={form.bikeId}
-                  onChange={handleChange}
-                  className="w-full rounded-xl bg-white/10 px-4 py-3"
-                  required
-                >
-                  <option value="" className="text-black">
-                    Select a bike
-                  </option>
-
-                  {bikes.map((bike) => (
-                    <option key={bike._id} value={bike._id} className="text-black">
-                      {bike.name} - ${bike.price}/day
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <input
-                  name="startDate"
-                  value={form.startDate}
-                  onChange={handleChange}
-                  type="date"
-                  className="w-full rounded-xl bg-white/10 px-4 py-3"
-                  required
-                />
-
-                <input
-                  name="endDate"
-                  value={form.endDate}
-                  onChange={handleChange}
-                  type="date"
-                  className="w-full rounded-xl bg-white/10 px-4 py-3"
-                  required
-                />
-              </div>
-
-              {totalDays > 0 && (
-                <div className="rounded-xl bg-white/10 p-4">
-                  <p>Days: {totalDays}</p>
-                  <p>Total: ${totalPrice}</p>
-                </div>
-              )}
-
-              <textarea
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                placeholder="Notes"
-                className="w-full rounded-xl bg-white/10 px-4 py-3"
-              />
-
-              <p className="text-sm text-gray-400">
-                We’ll confirm availability via email or SMS before sending your
-                payment link.
-              </p>
-
-              <button
-                type="submit"
-                className="w-full rounded-full bg-white px-6 py-4 font-bold text-black transition hover:bg-gray-200"
-              >
-                Send Request
-              </button>
-            </form>
-          </div>
-
-          <div className="sticky top-20 rounded-2xl bg-white/5 p-4 shadow-xl">
-            <img
-              src="/images/booking-info.jpeg"
-              alt="Wheely Good booking information"
-              className="max-h-[800px] w-full rounded-xl object-cover"
+      <div className="grid gap-10 md:grid-cols-2 md:items-start">
+        <div className="rounded-3xl border border-[#C8BEAA] bg-[#DDD5C4] p-6 shadow-sm">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              type="text"
+              placeholder="Your Name"
+              className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] placeholder:text-[#7A7468]"
+              required
             />
-          </div>
+
+            <input
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              type="email"
+              placeholder="Email"
+              className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] placeholder:text-[#7A7468]"
+              required
+            />
+
+            <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              type="text"
+              placeholder="Phone"
+              className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] placeholder:text-[#7A7468]"
+              required
+            />
+
+            {selectedBike ? (
+              <div className="rounded-xl border border-[#C8BEAA] bg-white p-4">
+                <p className="text-sm text-[#7A7468]">Selected bike</p>
+                <p className="font-semibold text-[#1F2933]">
+                  {selectedBike.name} - ${selectedBike.price}/day
+                </p>
+              </div>
+            ) : (
+              <select
+                name="bikeId"
+                value={form.bikeId}
+                onChange={handleChange}
+                className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                required
+              >
+                <option value="">Select a bike</option>
+
+                {bikes.map((bike) => (
+                  <option key={bike._id} value={bike._id}>
+                    {bike.name} - ${bike.price}/day
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <input
+                name="startDate"
+                value={form.startDate}
+                onChange={handleChange}
+                type="date"
+                className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                required
+              />
+
+              <input
+                name="endDate"
+                value={form.endDate}
+                onChange={handleChange}
+                type="date"
+                className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                required
+              />
+            </div>
+
+            {totalDays > 0 && (
+              <div className="rounded-xl border border-[#C8BEAA] bg-white p-4">
+                <p className="text-[#5B6470]">
+                  Days:{" "}
+                  <span className="font-semibold text-[#1F2933]">
+                    {totalDays}
+                  </span>
+                </p>
+
+                <p className="mt-1 text-[#5B6470]">
+                  Total:{" "}
+                  <span className="font-semibold text-[#1F2933]">
+                    ${totalPrice}
+                  </span>
+                </p>
+              </div>
+            )}
+
+            <textarea
+              name="notes"
+              value={form.notes}
+              onChange={handleChange}
+              placeholder="Notes"
+              className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] placeholder:text-[#7A7468]"
+            />
+
+            <p className="text-sm text-[#5B6470]">
+              We’ll confirm availability via email or SMS before sending your
+              payment link.
+            </p>
+
+            <button
+              type="submit"
+              className="w-full rounded-full bg-[#1F2933] px-6 py-4 font-semibold text-white transition hover:opacity-90"
+            >
+              Send Request
+            </button>
+          </form>
+        </div>
+
+        <div className="sticky top-24 rounded-3xl border border-[#C8BEAA] bg-[#DDD5C4] p-4 shadow-sm">
+          <img
+            src="/images/booking-info2.jpeg"
+            alt="Wheely Good booking information"
+            className="max-h-[800px] w-full rounded-2xl object-cover"
+          />
         </div>
       </div>
-    </main>
-  );
+    </div>
+  </main>
+);
 }
 
 export default function BookingPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-black p-10 text-white">Loading...</div>
+        <div className="min-h-screen bg-[#F8F7F2] p-10 text-[#1F2933]">
+          Loading...
+        </div>
       }
     >
       <BookingContent />

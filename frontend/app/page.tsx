@@ -5,7 +5,7 @@ import WhyRide from "@/components/WhyRide";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen">
       <Hero />
       <Categories />
       <WhyRide />

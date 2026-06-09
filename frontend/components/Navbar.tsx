@@ -32,8 +32,8 @@ export default function Navbar() {
     <header
       className={`sticky top-0 z-50 border-b transition-all duration-300 ${
         scrolled || open
-          ? "border-white/10 bg-black/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
-          : "border-transparent bg-black/40 backdrop-blur-md"
+  ? "border-[#D4CCBC] bg-[#E7E0D0]/95 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)]"
+  : "border-transparent bg-[#E7E0D0]/85 backdrop-blur-md"
       }`}
     >
       <div
@@ -43,7 +43,7 @@ export default function Navbar() {
       >
         <Link href="/" className="flex-shrink-0" onClick={closeMenu}>
           <Image
-            src="/images/logo1.png"
+            src="/images/logo4.png"
             alt="Wheely Good"
             width={scrolled ? 150 : 180}
             height={scrolled ? 60 : 70}
@@ -64,7 +64,7 @@ export default function Navbar() {
                 className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300 hover:scale-105 ${
                   isActive
                     ? "bg-white text-black"
-                    : "text-neutral-300 hover:bg-white/90 hover:text-black"
+                    : "text-[#4B5563] hover:bg-white/90 hover:text-black"
                 }`}
               >
                 {item}
@@ -72,12 +72,7 @@ export default function Navbar() {
             );
           })}
 
-          <Link
-            href="/admin/login"
-            className="rounded-full border border-yellow-400/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-yellow-400 transition-all duration-300 hover:scale-105 hover:bg-yellow-400 hover:text-black"
-          >
-            Admin
-          </Link>
+          
         </nav>
 
         <button
@@ -110,14 +105,15 @@ className="flex h-14 w-14 items-center justify-center rounded-full border border
                 </Link>
               );
             })}
-
-            <Link
+<Link
               href="/admin/login"
               onClick={closeMenu}
               className="rounded-xl border border-yellow-400/40 bg-yellow-400/10 px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-yellow-400 transition-all duration-300 hover:scale-[1.02] hover:bg-yellow-400 hover:text-black"
             >
               Admin
+
             </Link>
+            
           </div>
         </nav>
       )}

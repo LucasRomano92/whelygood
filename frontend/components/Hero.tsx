@@ -12,17 +12,11 @@ export default function Hero() {
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-black/55" />
+        <div className="absolute inset-0 bg-white/15" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl">
-        <p className="mb-4 text-sm uppercase tracking-[0.3em] text-neutral-300">
-          Byron Bay
-        </p>
-
-        <h1 className="text-5xl font-extrabold uppercase leading-tight md:text-7xl">
-          Wheely Good
-        </h1>
+        
         
 
 

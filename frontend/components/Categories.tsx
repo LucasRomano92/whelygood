@@ -14,14 +14,14 @@ export default function Categories() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <article className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <p className="text-sm uppercase tracking-[0.2em] text-neutral-400">
+          <article className="rounded-3xl border border-[#D4CCBC] bg-[#DDD5C4]/60 p-8">
+            <p className="text-sm uppercase tracking-[0.2em]text-[#7A7468]">
               Rentals
             </p>
             <h3 className="mt-4 text-2xl font-bold uppercase">
               Rent an e-bike
             </h3>
-            <p className="mt-4 max-w-md text-neutral-300">
+            <p className="mt-4 max-w-md text-[#6B7280]">
               Book a bike for a few hours or for the whole day and enjoy Byron
               Bay in a simple way.
             </p>
@@ -33,14 +33,14 @@ export default function Categories() {
             </Link>
           </article>
 
-          <article className="rounded-3xl border border-white/10 bg-white/5 p-8">
+          <article className="rounded-3xl border border-[#C8BEAA] bg-[#DDD5C4]/60 p-8">
             <p className="text-sm uppercase tracking-[0.2em] text-neutral-400">
               Shop
             </p>
             <h3 className="mt-4 text-2xl font-bold uppercase">
               Buy your bike
             </h3>
-            <p className="mt-4 max-w-md text-neutral-300">
+            <p className="mt-4 max-w-md text-[#6B7280]">
               Explore bikes for sale with a clean product view and a simple
               path to contact or purchase.
             </p>
