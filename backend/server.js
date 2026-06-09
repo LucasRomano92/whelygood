@@ -45,6 +45,24 @@ const mailTransporter = nodemailer.createTransport({
 app.get("/", (req, res) => {
   res.send("Backend WheelyGood running 🚴");
 });
+app.get("/test-email", async (req, res) => {
+  try {
+    await mailTransporter.sendMail({
+      from: `"WheelyGood Test" <${process.env.EMAIL_USER}>`,
+      to: process.env.OWNER_EMAIL,
+      subject: "Test email from WheelyGood",
+      html: "<h2>Email system is working ✅</h2>",
+    });
+
+    res.json({ message: "Test email sent ✅" });
+  } catch (error) {
+    console.error("TEST EMAIL ERROR:", error);
+    res.status(500).json({
+      message: "Email test failed",
+      error: error.message,
+    });
+  }
+});
 
 // 📝 POST booking
 app.post("/booking", async (req, res) => {
