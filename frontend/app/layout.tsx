@@ -14,13 +14,13 @@ export const metadata: Metadata = {
     url: "https://www.wheelygoodrides.com.au",
     siteName: "Wheely Good",
     images: [
-      {
-        url: "/opengraph-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Wheely Good",
-      },
-    ],
+  {
+    url: "/og-v2.png",
+    width: 1200,
+    height: 630,
+    alt: "Wheely Good",
+  },
+],
   },
 
   twitter: {
