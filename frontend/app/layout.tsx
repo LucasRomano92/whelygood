@@ -8,26 +8,32 @@ export const metadata: Metadata = {
 
   metadataBase: new URL("https://www.wheelygoodrides.com.au"),
 
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
+
   openGraph: {
     title: "Wheely Good",
     description: "Bike rentals and shop in Byron Bay",
     url: "https://www.wheelygoodrides.com.au",
     siteName: "Wheely Good",
     images: [
-  {
-    url: "/og-v2.png",
-    width: 1200,
-    height: 630,
-    alt: "Wheely Good",
-  },
-],
+      {
+        url: "https://www.wheelygoodrides.com.au/og-v2.png",
+        width: 1200,
+        height: 630,
+        alt: "Wheely Good",
+      },
+    ],
   },
 
   twitter: {
     card: "summary_large_image",
     title: "Wheely Good",
     description: "Bike rentals and shop in Byron Bay",
-    images: ["/opengraph-image.png"],
+    images: ["https://www.wheelygoodrides.com.au/og-v2.png"],
   },
 };
 
