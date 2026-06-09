@@ -174,7 +174,7 @@ app.post("/booking", async (req, res) => {
     // =========================
     // 📧 EMAIL AL CLIENTE
     // =========================
-    await mailTransporter.sendMail({
+    await resend.emails.send({
       from: `"WheelyGood" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Your booking request has been received 🚴",
@@ -193,8 +193,8 @@ app.post("/booking", async (req, res) => {
     // =========================
     // 📧 EMAIL AL DUEÑO
     // =========================
-    await mailTransporter.sendMail({
-      from: `"WheelyGood" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "WheelyGood <onboarding@resend.dev>",
       to: process.env.OWNER_EMAIL,
       subject: "New booking request 🚨",
       html: `
