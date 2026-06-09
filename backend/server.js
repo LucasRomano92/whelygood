@@ -8,6 +8,8 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const adminRoutes = require("./routes/adminRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
@@ -58,16 +60,20 @@ app.get("/", (req, res) => {
 });
 app.get("/test-email", async (req, res) => {
   try {
-    await mailTransporter.sendMail({
-      from: `"WheelyGood Test" <${process.env.EMAIL_USER}>`,
+    const data = await resend.emails.send({
+      from: "onboarding@resend.dev",
       to: process.env.OWNER_EMAIL,
-      subject: "Test email from WheelyGood",
-      html: "<h2>Email system is working ✅</h2>",
+      subject: "WheelyGood Test Email 🚴",
+      html: "<h2>Resend is working ✅</h2>",
     });
 
-    res.json({ message: "Test email sent ✅" });
+    res.json({
+      message: "Test email sent ✅",
+      data,
+    });
   } catch (error) {
-    console.error("TEST EMAIL ERROR:", error);
+    console.error("RESEND ERROR:", error);
+
     res.status(500).json({
       message: "Email test failed",
       error: error.message,
