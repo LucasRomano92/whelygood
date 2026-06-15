@@ -9,6 +9,7 @@ type Bike = {
   image: string;
   category: "rent" | "shop";
   isActive: boolean;
+  stock: number;
 };
 
 async function getShopBikes() {
