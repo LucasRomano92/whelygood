@@ -19,6 +19,7 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const paypalRoutes = require("./routes/paypalRoutes");
 const stripeWebhookRoutes = require("./routes/stripeWebhookRoutes");
+const heroRoutes = require("./routes/heroRoutes");
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use("/payment", paymentRoutes);
 app.use("/payment/paypal", paypalRoutes);
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/settings", require("./routes/settingRoutes"));
+app.use("/api/hero", heroRoutes);
 
 // 📧 MAIL CONFIGv
 // 📧 MAIL CONFIG
