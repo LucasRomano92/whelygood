@@ -79,14 +79,23 @@ export default function BikeCard({ bike }: { bike: Bike }) {
 
       <div className="p-6">
         <div className="flex items-center justify-between">
-          <span className="text-xs uppercase tracking-[0.2em] text-[#7A7468]">
-            {isRent
-              ? bike.stock > 0
-                ? `${bike.stock} available`
-                : "Out of stock"
-              : "For sale"}
-          </span>
+         <div className="inline-flex items-center gap-2 rounded-full border border-[#C8BEAA] bg-white/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#1F2933]">
+  <span
+    className={`h-2.5 w-2.5 rounded-full ${
+      bike.stock >= 4
+        ? "bg-green-500"
+        : bike.stock >= 2
+        ? "bg-orange-500"
+        : "bg-red-500"
+    }`}
+  />
 
+  {isRent
+    ? bike.stock > 0
+      ? `${bike.stock} available`
+      : "Out of stock"
+    : "For sale"}
+</div>
           {isRent ? (
             <Link
               href={`/booking?bikeId=${bike._id}`}

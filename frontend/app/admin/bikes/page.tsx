@@ -16,6 +16,7 @@ type Bike = {
   videoUrl?: string;
   category: "rent" | "shop";
   isActive: boolean;
+  stock: number;
 };
 
 export default function AdminBikesPage() {
@@ -41,6 +42,7 @@ export default function AdminBikesPage() {
     videoUrl: "",
     category: "rent",
     isActive: true,
+    stock: "1",
   });
 
   const getToken = () => {
@@ -75,17 +77,20 @@ export default function AdminBikesPage() {
     }
   };
 
-  useEffect(() => {
-    const token = getToken();
+ useEffect(() => {
+  const token =
+    localStorage.getItem("token") || localStorage.getItem("adminToken");
 
-    if (!token) {
-      router.push("/admin/login");
-      return;
-    }
+  if (!token) {
+    router.push("/admin/login");
+    return;
+  }
 
+  setTimeout(() => {
     fetchBikes();
-  }, []);
-
+  }, 0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
   const resetForm = () => {
     setForm({
       name: "",
@@ -98,6 +103,7 @@ export default function AdminBikesPage() {
       videoUrl: "",
       category: "rent",
       isActive: true,
+      stock: "1",
     });
 
     setEditingId(null);
@@ -238,12 +244,18 @@ export default function AdminBikesPage() {
       return;
     }
 
-    const price = Number(form.price);
+   const price = Number(form.price);
+const stock = Number(form.stock);
 
-    if (Number.isNaN(price) || price < 0) {
-      toast.error("Please enter a valid price");
-      return;
-    }
+if (Number.isNaN(price) || price < 0) {
+  toast.error("Please enter a valid price");
+  return;
+}
+
+if (Number.isNaN(stock) || stock < 0) {
+  toast.error("Please enter a valid stock");
+  return;
+}
 
     try {
       setSaving(true);
@@ -262,6 +274,7 @@ export default function AdminBikesPage() {
         videoUrl: form.videoUrl,
         category: form.category,
         isActive: form.isActive,
+          stock,
       };
 
       const url = editingId
@@ -306,6 +319,7 @@ export default function AdminBikesPage() {
       model: bike.model || "",
       description: bike.description,
       price: String(bike.price),
+      stock: String(bike.stock),
       image: bike.image,
       galleryImages: bike.galleryImages || [],
       featuresText: bike.features?.join("\n") || "",
@@ -425,6 +439,17 @@ export default function AdminBikesPage() {
               disabled={saving}
               className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
             />
+            <input
+  name="stock"
+  type="number"
+  min="0"
+  value={form.stock}
+  onChange={handleChange}
+  placeholder="Stock"
+  required
+  disabled={saving}
+  className="rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none disabled:opacity-50"
+/>
 
             <select
               name="category"
@@ -625,7 +650,23 @@ Helmet included`}
                       </p>
 
                       <p className="mt-4 text-lg font-bold">${bike.price}</p>
+<div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-semibold">
+  <span
+    className={`h-2.5 w-2.5 rounded-full ${
+      bike.stock > 0 ? "bg-green-400" : "bg-red-400"
+    }`}
+  />
 
+  <span
+    className={
+      bike.stock > 0 ? "text-green-300" : "text-red-300"
+    }
+  >
+    {bike.stock > 0
+      ? `${bike.stock} in stock`
+      : "Out of stock"}
+  </span>
+</div>
                       <p className="mt-2 text-sm">
                         Gallery: {bike.galleryImages?.length || 0} images
                       </p>
