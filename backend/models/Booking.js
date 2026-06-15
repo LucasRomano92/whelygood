@@ -2,39 +2,51 @@ const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
   {
-    name: {
+    stripeSessionId: {
+      type: String,
+      default: "",
+      index: true,
+    },
+
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "failed", "cancelled"],
+      default: "pending",
+    },
+
+    status: {
+      type: String,
+      enum: ["confirmed", "cancelled", "completed"],
+      default: "confirmed",
+    },
+
+    customerName: {
       type: String,
       required: true,
       trim: true,
       minlength: 2,
     },
 
-    email: {
+    customerEmail: {
       type: String,
       required: true,
       trim: true,
       lowercase: true,
-      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email"],
     },
 
-    phone: {
+    customerPhone: {
       type: String,
       required: true,
       trim: true,
-      validate: {
-        validator: function (v) {
-          return v.replace(/\D/g, "").length >= 8;
-        },
-        message: "Invalid phone number",
-      },
-    },
-
-    bike: {
-      type: String,
-      required: true,
     },
 
     bikeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Bike",
+      required: true,
+    },
+
+    bikeName: {
       type: String,
       required: true,
     },
@@ -56,10 +68,28 @@ const bookingSchema = new mongoose.Schema(
       max: 30,
     },
 
-    totalPrice: {
+    quantity: {
+      type: Number,
+      required: true,
+      default: 1,
+      min: 1,
+    },
+
+    pricePerDay: {
       type: Number,
       required: true,
       min: 0,
+    },
+
+    amountTotal: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    currency: {
+      type: String,
+      default: "aud",
     },
 
     notes: {
