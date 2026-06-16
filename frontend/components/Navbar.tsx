@@ -43,7 +43,7 @@ export default function Navbar() {
       >
         <Link href="/" className="flex-shrink-0" onClick={closeMenu}>
           <Image
-            src="/images/logo6.jpeg"
+            src="/images/logo7.png"
             alt="Wheely Good"
             width={scrolled ? 150 : 180}
             height={scrolled ? 60 : 70}

@@ -94,6 +94,19 @@ export default function AdminDashboard() {
               Add, edit and delete bikes for shop and rentals.
             </p>
           </Link>
+          <Link
+  href="/admin/hero"
+  className="rounded-2xl border border-white/10 bg-white/5 p-8 transition hover:-translate-y-1 hover:bg-white/10"
+>
+  <p className="mb-4 text-4xl">🖼️</p>
+
+  <h2 className="text-2xl font-semibold">Manage Hero</h2>
+
+  <p className="mt-2 text-sm text-white/60">
+    Create and manage homepage hero carousel slides.
+  </p>
+</Link>
+
 
           <Link
             href="/admin/settings"
