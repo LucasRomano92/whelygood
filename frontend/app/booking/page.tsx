@@ -126,6 +126,25 @@ function BookingContent() {
 
     fetchBikes();
   }, [bikeIdFromURL]);
+  const availableTimes = (() => {
+  if (!form.startDate) return [];
+
+  const date = new Date(`${form.startDate}T00:00:00`);
+  const day = date.getDay();
+
+  const isWeekend = day === 0 || day === 6;
+
+  const startHour = isWeekend ? 10 : 9;
+  const endHour = isWeekend ? 15 : 17;
+
+  const times: string[] = [];
+
+  for (let hour = startHour; hour <= endHour; hour++) {
+    times.push(`${String(hour).padStart(2, "0")}:00`);
+  }
+
+  return times;
+})();
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -462,25 +481,20 @@ return (
                       </label>
 
                       <select
-                        name="pickupTime"
-                        value={form.pickupTime}
-                        onChange={handleChange}
-                        className="block h-[54px] w-full min-w-0 max-w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
-                        required
-                      >
-                        <option value="">Select Time</option>
-                        <option value="07:00">7:00 AM</option>
-                        <option value="08:00">8:00 AM</option>
-                        <option value="09:00">9:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="13:00">1:00 PM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="15:00">3:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                        <option value="17:00">5:00 PM</option>
-                      </select>
+  name="pickupTime"
+  value={form.pickupTime}
+  onChange={handleChange}
+  className="block h-[54px] w-full min-w-0 max-w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
+  required
+>
+  <option value="">Select Time</option>
+
+  {availableTimes.map((time) => (
+    <option key={time} value={time}>
+      {time}
+    </option>
+  ))}
+</select>
                     </div>
                   </div>
 
