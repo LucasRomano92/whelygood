@@ -223,56 +223,59 @@ function BookingContent() {
     setStep((prev) => Math.max(1, prev - 1));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!validateRentalAndCart()) return;
-    if (!validateCustomerDetails()) return;
+  if (!validateRentalAndCart()) return;
+  if (!validateCustomerDetails()) return;
 
-    try {
-      setLoadingPayment(true);
+  try {
+    setLoadingPayment(true);
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/payment/create-booking-checkout`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            items: cart.map((item) => ({
-              bikeId: item._id,
-              quantity: item.quantity,
-              price: item.price,
-              name: item.name,
-            })),
-            name: form.name,
-            email: form.email,
-            phone: form.phone,
-            startDate: form.startDate,
-            pickupTime: form.pickupTime,
-            duration: Number(form.duration),
-            totalPrice: cartTotal,
-            notes: form.notes,
-          }),
-        }
-      );
+    const start = new Date(form.startDate);
+    const end = new Date(start);
+    end.setDate(start.getDate() + Number(form.duration) - 1);
 
-      const data = await res.json();
+    const endDate = end.toISOString().split("T")[0];
 
-      if (!res.ok) {
-        toast.error(data.error || "Error creating payment");
-        return;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/payment/create-booking-checkout`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: cart.map((item) => ({
+            bikeId: item._id,
+            quantity: item.quantity,
+          })),
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          startDate: form.startDate,
+          endDate,
+          pickupTime: form.pickupTime,
+          notes: form.notes,
+        }),
       }
+    );
 
-      window.location.href = data.url;
-    } catch (error) {
-      console.error(error);
-      toast.error("Payment error");
-    } finally {
-      setLoadingPayment(false);
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error(data.error || "Error creating payment");
+      return;
     }
-  };
+
+    window.location.href = data.url;
+  } catch (error) {
+    console.error(error);
+    toast.error("Payment error");
+  } finally {
+    setLoadingPayment(false);
+  }
+};
 
 return (
   <main className="min-h-screen bg-[#F8F7F2] px-4 py-16">
