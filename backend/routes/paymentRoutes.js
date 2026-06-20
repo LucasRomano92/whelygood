@@ -7,6 +7,19 @@ const router = express.Router();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+const getRentalPrice = (bike, totalDays) => {
+  if (totalDays === 1) return Number(bike.rentalPrices?.day1 || 0);
+  if (totalDays === 2) return Number(bike.rentalPrices?.day2 || 0);
+  if (totalDays === 3) return Number(bike.rentalPrices?.day3 || 0);
+  if (totalDays === 4) return Number(bike.rentalPrices?.day4 || 0);
+  if (totalDays === 5) return Number(bike.rentalPrices?.day5 || 0);
+  if (totalDays === 6) return Number(bike.rentalPrices?.day6 || 0);
+  if (totalDays === 7) return Number(bike.rentalPrices?.day7 || 0);
+  if (totalDays === 30) return Number(bike.rentalPrices?.month || 0);
+
+  return 0;
+};
+
 router.post("/create-checkout-session", async (req, res) => {
   try {
     const { bikeId } = req.body;
@@ -25,7 +38,6 @@ router.post("/create-checkout-session", async (req, res) => {
       return res.status(400).json({ error: "This bike is not for sale" });
     }
 
-    // 🔥 SHIPPING DINÁMICO DESDE DB
     const setting = await Setting.findOne({ key: "shippingPrice" });
     const shippingPrice = setting ? setting.value : 150;
 
@@ -48,7 +60,6 @@ router.post("/create-checkout-session", async (req, res) => {
         },
       ],
 
-      // 📦 SHIPPING
       shipping_address_collection: {
         allowed_countries: ["AU"],
       },
@@ -58,7 +69,7 @@ router.post("/create-checkout-session", async (req, res) => {
           shipping_rate_data: {
             type: "fixed_amount",
             fixed_amount: {
-              amount: shippingPrice * 100, // 🔥 DINÁMICO
+              amount: Math.round(Number(shippingPrice) * 100),
               currency: "aud",
             },
             display_name: "Standard shipping",
@@ -76,8 +87,8 @@ router.post("/create-checkout-session", async (req, res) => {
         },
       ],
 
-      // 🔥 METADATA (clave para orders)
       metadata: {
+        type: "shop",
         bikeId: bike._id.toString(),
         bikeName: bike.name,
       },
@@ -106,6 +117,7 @@ router.post("/create-booking-checkout", async (req, res) => {
       startDate,
       endDate,
       pickupTime = "",
+      surfboardRack = false,
       notes = "",
     } = req.body;
 
@@ -134,11 +146,22 @@ router.post("/create-booking-checkout", async (req, res) => {
     const diffTime = end.getTime() - start.getTime();
     const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-    if (totalDays < 1 || totalDays > 30) {
+    if (![1, 2, 3, 4, 5, 6, 7, 30].includes(totalDays)) {
       return res.status(400).json({
-        error: "Rental duration must be between 1 and 30 days",
+        error: "Invalid rental duration",
       });
     }
+
+    const rackPrices = {
+      1: 15,
+      2: 30,
+      3: 45,
+      4: 45,
+      5: 45,
+      6: 45,
+      7: 45,
+      30: 45,
+    };
 
     const bookingItems = [];
     const lineItems = [];
@@ -156,7 +179,7 @@ router.post("/create-booking-checkout", async (req, res) => {
         return res.status(400).json({ error: `${bike.name} is not for rent` });
       }
 
-      if (!bike.isActive) {
+      if (bike.isActive === false) {
         return res.status(400).json({ error: `${bike.name} is not available` });
       }
 
@@ -164,21 +187,28 @@ router.post("/create-booking-checkout", async (req, res) => {
         return res.status(400).json({ error: "Invalid quantity" });
       }
 
-      if (bike.stock < requestedQuantity) {
+      if (Number(bike.stock) < requestedQuantity) {
         return res.status(400).json({
           error: `Not enough stock available for ${bike.name}`,
         });
       }
 
-      const pricePerDay = Number(bike.price);
-      const itemTotal = pricePerDay * totalDays * requestedQuantity;
+      const rentalPrice = getRentalPrice(bike, totalDays);
+
+      if (!rentalPrice || rentalPrice <= 0) {
+        return res.status(400).json({
+          error: `${bike.name} does not have a valid price for this duration`,
+        });
+      }
+
+      const itemTotal = rentalPrice * requestedQuantity;
       amountTotal += itemTotal;
 
       bookingItems.push({
         bikeId: bike._id.toString(),
         bikeName: bike.name,
         quantity: requestedQuantity,
-        pricePerDay,
+        rentalPrice,
         total: itemTotal,
       });
 
@@ -187,12 +217,34 @@ router.post("/create-booking-checkout", async (req, res) => {
           currency: "aud",
           product_data: {
             name: `${bike.name} rental`,
-            description: `${totalDays} day rental`,
+            description:
+              totalDays === 30 ? "1 month rental" : `${totalDays} day rental`,
             images: bike.image ? [bike.image] : [],
           },
-          unit_amount: Math.round(pricePerDay * totalDays * 100),
+          unit_amount: Math.round(rentalPrice * 100),
         },
         quantity: requestedQuantity,
+      });
+    }
+
+    const rackPrice = surfboardRack ? rackPrices[totalDays] || 0 : 0;
+
+    if (rackPrice > 0) {
+      amountTotal += rackPrice;
+
+      lineItems.push({
+        price_data: {
+          currency: "aud",
+          product_data: {
+            name: "Surfboard Rack Add-on",
+            description:
+              totalDays === 30
+                ? "Surfboard rack for 1 month rental"
+                : `Surfboard rack for ${totalDays} day rental`,
+          },
+          unit_amount: Math.round(rackPrice * 100),
+        },
+        quantity: 1,
       });
     }
 
@@ -212,6 +264,8 @@ router.post("/create-booking-checkout", async (req, res) => {
         pickupTime,
         pickupLocation: "Unit 1/122 Bangalow Rd",
         totalDays: String(totalDays),
+        surfboardRack: String(Boolean(surfboardRack)),
+        rackPrice: String(rackPrice),
         amountTotal: String(amountTotal),
         notes,
         items: JSON.stringify(bookingItems),

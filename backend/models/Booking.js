@@ -19,7 +19,7 @@ const bookingItemSchema = new mongoose.Schema(
       min: 1,
     },
 
-    pricePerDay: {
+    rentalPrice: {
       type: Number,
       required: true,
       min: 0,
@@ -58,7 +58,6 @@ const bookingSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      minlength: 2,
     },
 
     customerEmail: {
@@ -77,12 +76,6 @@ const bookingSchema = new mongoose.Schema(
     items: {
       type: [bookingItemSchema],
       required: true,
-      validate: {
-        validator: function (items) {
-          return items.length > 0;
-        },
-        message: "Booking must have at least one bike",
-      },
     },
 
     startDate: {
@@ -108,14 +101,21 @@ const bookingSchema = new mongoose.Schema(
     totalDays: {
       type: Number,
       required: true,
-      min: 1,
-      max: 30,
+    },
+
+    surfboardRack: {
+      type: Boolean,
+      default: false,
+    },
+
+    rackPrice: {
+      type: Number,
+      default: 0,
     },
 
     amountTotal: {
       type: Number,
       required: true,
-      min: 0,
     },
 
     currency: {
@@ -126,10 +126,11 @@ const bookingSchema = new mongoose.Schema(
     notes: {
       type: String,
       default: "",
-      maxlength: 500,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 module.exports = mongoose.model("Booking", bookingSchema);
