@@ -371,8 +371,8 @@ function BookingContent() {
   };
 
 return (
-  <main className="min-h-screen bg-[#F8F7F2] px-4 py-16">
-    <div className="mx-auto max-w-7xl">
+  <main className="min-h-screen overflow-x-hidden bg-[#F8F7F2] px-3 py-16 sm:px-4">
+    <div className="mx-auto w-full max-w-7xl overflow-hidden">
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-extrabold uppercase text-[#1F2933]">
@@ -383,21 +383,12 @@ return (
             RENTALS
           </p>
         </div>
-
-        {/* <div className="fixed right-6 top-24 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#1F2933] text-white shadow-lg">
-          🛒
-          {cartCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-              {cartCount}
-            </span>
-          )}
-        </div> */}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <div className="rounded-3xl bg-white p-3 shadow-sm sm:p-6">
-          <div className="rounded-3xl border border-[#C8BEAA] bg-[#DDD5C4] p-4 shadow-sm sm:p-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="min-w-0 rounded-3xl bg-white p-3 shadow-sm sm:p-6">
+          <div className="min-w-0 rounded-3xl border border-[#C8BEAA] bg-[#DDD5C4] p-4 shadow-sm sm:p-6">
+            <form onSubmit={handleSubmit} className="min-w-0 space-y-4">
               <div className="relative mb-12 px-2">
                 <div className="absolute left-6 right-6 top-6 h-[2px] bg-[#E5E5E5]" />
 
@@ -429,7 +420,7 @@ return (
 
               {step === 1 && (
                 <>
-                  <div className="mb-8">
+                  <div className="mb-8 min-w-0">
                     <h2 className="text-2xl font-bold text-[#1F2933]">
                       1 Choose Your Rental Period
                     </h2>
@@ -449,8 +440,8 @@ return (
                     </div>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
+                  <div className="grid min-w-0 gap-4 md:grid-cols-2">
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-[#5B6470]">
                         Select Date
                       </label>
@@ -460,12 +451,12 @@ return (
                         value={form.startDate}
                         onChange={handleChange}
                         type="date"
-                        className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                        className="block h-[54px] w-full min-w-0 max-w-full appearance-none rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
                         required
                       />
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <label className="mb-2 block text-sm font-semibold text-[#5B6470]">
                         Select Time
                       </label>
@@ -474,7 +465,7 @@ return (
                         name="pickupTime"
                         value={form.pickupTime}
                         onChange={handleChange}
-                        className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                        className="block h-[54px] w-full min-w-0 max-w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
                         required
                       >
                         <option value="">Select Time</option>
@@ -493,7 +484,7 @@ return (
                     </div>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="mb-2 block text-sm font-semibold text-[#5B6470]">
                       Duration
                     </label>
@@ -502,7 +493,7 @@ return (
                       name="duration"
                       value={form.duration}
                       onChange={handleChange}
-                      className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                      className="block h-[54px] w-full min-w-0 max-w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
                       required
                     >
                       <option value="">Select duration</option>
@@ -517,13 +508,13 @@ return (
                     </select>
                   </div>
 
-                  <label className="flex items-center gap-3 rounded-xl border border-[#C8BEAA] bg-white p-4 text-[#1F2933]">
+                  <label className="flex min-w-0 items-center gap-3 rounded-xl border border-[#C8BEAA] bg-white p-4 text-[#1F2933]">
                     <input
                       type="checkbox"
                       name="surfboardRack"
                       checked={form.surfboardRack}
                       onChange={handleChange}
-                      className="h-5 w-5"
+                      className="h-5 w-5 shrink-0"
                     />
 
                     <span>
@@ -536,7 +527,7 @@ return (
                   </label>
 
                   {cart.length > 0 && (
-                    <div className="rounded-2xl border border-[#C8BEAA] bg-white p-5">
+                    <div className="min-w-0 rounded-2xl border border-[#C8BEAA] bg-white p-5">
                       <p className="text-sm font-bold uppercase text-[#7A7468]">
                         Current Cart
                       </p>
@@ -553,21 +544,21 @@ return (
                             key={item._id}
                             className="mt-4 flex flex-col gap-4 border-b border-[#C8BEAA] pb-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
                           >
-                            <div className="flex w-full items-start gap-4">
+                            <div className="flex w-full min-w-0 items-start gap-4">
                               {item.image && (
                                 <img
                                   src={item.image}
                                   alt={item.name}
-                                  className="h-16 w-16 rounded-xl object-contain"
+                                  className="h-16 w-16 shrink-0 rounded-xl object-contain"
                                 />
                               )}
 
-                              <div>
+                              <div className="min-w-0">
                                 <p className="font-bold text-[#1F2933]">
                                   {item.name}
                                 </p>
 
-                                <p className="text-sm text-[#5B6470]">
+                                <p className="break-words text-sm text-[#5B6470]">
                                   Bike rental: ${itemPrice} × {item.quantity} = $
                                   {itemTotal}
                                 </p>
@@ -626,13 +617,13 @@ return (
                   )}
 
                   {form.startDate && form.pickupTime && form.duration && (
-                    <div className="pt-6">
+                    <div className="min-w-0 pt-6">
                       <h3 className="mb-4 text-xl font-bold text-[#1F2933]">
                         2 Available Rental Bikes
                       </h3>
 
-                      <div className="rounded-2xl border border-[#C8BEAA] bg-white p-6">
-                        <div className="grid gap-4 md:grid-cols-3">
+                      <div className="min-w-0 rounded-2xl border border-[#C8BEAA] bg-white p-4 sm:p-6">
+                        <div className="grid min-w-0 gap-4 md:grid-cols-3">
                           {bikes.map((bike) => {
                             const cartItem = cart.find(
                               (item) => item._id === bike._id
@@ -648,7 +639,7 @@ return (
                                 type="button"
                                 key={bike._id}
                                 onClick={() => setModalBike(bike)}
-                                className={`relative rounded-2xl border bg-white p-4 text-left transition hover:shadow-md ${
+                                className={`relative min-w-0 rounded-2xl border bg-white p-4 text-left transition hover:shadow-md ${
                                   cartItem
                                     ? "border-red-500"
                                     : "border-[#C8BEAA]"
@@ -692,7 +683,7 @@ return (
                       type="button"
                       onClick={handleNextStep}
                       disabled={cart.length === 0}
-                      className="rounded-xl bg-red-500 px-8 py-3 font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="w-full rounded-xl bg-red-500 px-8 py-3 font-bold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     >
                       Next Step
                     </button>
@@ -708,14 +699,14 @@ return (
                     </h2>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid min-w-0 gap-4 md:grid-cols-2">
                     <input
                       name="name"
                       value={form.name}
                       onChange={handleChange}
                       type="text"
                       placeholder="Full Name"
-                      className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                      className="block h-[54px] w-full min-w-0 max-w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
                       required
                     />
 
@@ -725,7 +716,7 @@ return (
                       onChange={handleChange}
                       type="email"
                       placeholder="Email"
-                      className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                      className="block h-[54px] w-full min-w-0 max-w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
                       required
                     />
                   </div>
@@ -736,7 +727,7 @@ return (
                     onChange={handleChange}
                     type="tel"
                     placeholder="Phone Number"
-                    className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                    className="block h-[54px] w-full min-w-0 max-w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
                     required
                   />
 
@@ -745,7 +736,7 @@ return (
                     value={form.notes}
                     onChange={handleChange}
                     rows={3}
-                    className="w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933]"
+                    className="block w-full min-w-0 max-w-full rounded-xl border border-[#C8BEAA] bg-white px-4 py-3 text-[#1F2933] outline-none"
                     placeholder="Anything we should know?"
                   />
 
@@ -777,7 +768,7 @@ return (
                     </h2>
                   </div>
 
-                  <div className="rounded-2xl border border-[#C8BEAA] bg-white p-5">
+                  <div className="min-w-0 rounded-2xl border border-[#C8BEAA] bg-white p-5">
                     <p className="text-sm font-bold uppercase text-[#7A7468]">
                       Order Summary
                     </p>
@@ -793,23 +784,23 @@ return (
                         return (
                           <div
                             key={item._id}
-                            className="flex items-center justify-between gap-4 border-b border-[#C8BEAA] pb-4 last:border-b-0 last:pb-0"
+                            className="flex flex-col gap-4 border-b border-[#C8BEAA] pb-4 last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
                           >
-                            <div className="flex items-center gap-4">
+                            <div className="flex min-w-0 items-center gap-4">
                               {item.image && (
                                 <img
                                   src={item.image}
                                   alt={item.name}
-                                  className="h-20 w-20 rounded-xl bg-white object-contain p-1"
+                                  className="h-20 w-20 shrink-0 rounded-xl bg-white object-contain p-1"
                                 />
                               )}
 
-                              <div>
+                              <div className="min-w-0">
                                 <p className="font-bold text-[#1F2933]">
                                   {item.name}
                                 </p>
 
-                                <p className="text-sm text-[#5B6470]">
+                                <p className="break-words text-sm text-[#5B6470]">
                                   {form.duration === "30"
                                     ? "1 month"
                                     : `${form.duration} day(s)`}{" "}
@@ -881,7 +872,7 @@ return (
           </div>
         </div>
 
-        <aside className="rounded-3xl bg-white p-4 shadow-sm">
+        <aside className="hidden rounded-3xl bg-white p-4 shadow-sm lg:block">
           <div className="sticky top-28">
             <img
               src="/images/pricing-table.jpeg"
