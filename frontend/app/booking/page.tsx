@@ -384,19 +384,19 @@ return (
           </p>
         </div>
 
-        <div className="fixed right-6 top-24 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#1F2933] text-white shadow-lg">
+        {/* <div className="fixed right-6 top-24 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#1F2933] text-white shadow-lg">
           🛒
           {cartCount > 0 && (
             <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
               {cartCount}
             </span>
           )}
-        </div>
+        </div> */}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <div className="rounded-3xl border border-[#C8BEAA] bg-[#DDD5C4] p-6 shadow-sm">
+        <div className="rounded-3xl bg-white p-3 shadow-sm sm:p-6">
+          <div className="rounded-3xl border border-[#C8BEAA] bg-[#DDD5C4] p-4 shadow-sm sm:p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative mb-12 px-2">
                 <div className="absolute left-6 right-6 top-6 h-[2px] bg-[#E5E5E5]" />
@@ -551,9 +551,9 @@ return (
                         return (
                           <div
                             key={item._id}
-                            className="mt-4 flex items-center justify-between gap-4"
+                            className="mt-4 flex flex-col gap-4 border-b border-[#C8BEAA] pb-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
                           >
-                            <div className="flex items-center gap-4">
+                            <div className="flex w-full items-start gap-4">
                               {item.image && (
                                 <img
                                   src={item.image}
@@ -609,7 +609,7 @@ return (
                             <button
                               type="button"
                               onClick={() => removeFromCart(item._id)}
-                              className="rounded-full border border-red-500 px-4 py-2 text-sm font-bold text-red-500"
+                              className="w-full rounded-full border border-red-500 px-4 py-3 text-sm font-bold text-red-500 sm:w-auto sm:py-2"
                             >
                               Remove
                             </button>
