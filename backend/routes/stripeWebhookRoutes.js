@@ -60,18 +60,32 @@ router.post(
             return res.json({ received: true });
           }
 
-          const bike = await Bike.findById(metadata.bikeId);
+          let items = [];
 
-          if (!bike) {
-            console.error("❌ BIKE NOT FOUND FOR BOOKING");
+          try {
+            items = JSON.parse(metadata.items || "[]");
+          } catch (err) {
+            console.error("❌ ERROR PARSING BOOKING ITEMS:", err);
             return res.json({ received: true });
           }
 
-          const quantity = Number(metadata.quantity || 1);
-
-          if (bike.stock < quantity) {
-            console.error("❌ NOT ENOUGH STOCK AFTER PAYMENT");
+          if (!items.length) {
+            console.error("❌ NO BOOKING ITEMS FOUND");
             return res.json({ received: true });
+          }
+
+          for (const item of items) {
+            const bike = await Bike.findById(item.bikeId);
+
+            if (!bike) {
+              console.error(`❌ BIKE NOT FOUND: ${item.bikeId}`);
+              return res.json({ received: true });
+            }
+
+            if (bike.stock < Number(item.quantity)) {
+              console.error(`❌ NOT ENOUGH STOCK FOR: ${bike.name}`);
+              return res.json({ received: true });
+            }
           }
 
           const booking = await Booking.create({
@@ -83,83 +97,140 @@ router.post(
             customerEmail: metadata.customerEmail || email,
             customerPhone: metadata.customerPhone || "",
 
-            bikeId: bike._id,
-            bikeName: metadata.bikeName || bike.name,
+            items,
 
             startDate: metadata.startDate,
             endDate: metadata.endDate,
-            totalDays: Number(metadata.totalDays),
+            pickupTime: metadata.pickupTime || "",
+            pickupLocation: metadata.pickupLocation || "Unit 1/122 Bangalow Rd",
 
-            quantity,
-            pricePerDay: Number(metadata.pricePerDay),
+            totalDays: Number(metadata.totalDays),
             amountTotal: total,
             currency: session.currency || "aud",
 
             notes: metadata.notes || "",
           });
 
-          bike.stock = Math.max(0, bike.stock - quantity);
-          await bike.save();
+          for (const item of items) {
+            const bike = await Bike.findById(item.bikeId);
+
+            bike.stock = Math.max(0, bike.stock - Number(item.quantity));
+            await bike.save();
+          }
 
           console.log("✅ BOOKING SAVED IN DB");
           console.log("✅ STOCK UPDATED");
 
+          const itemsHtml = booking.items
+            .map(
+              (item) => `
+                <li>
+                  <strong>${item.bikeName}</strong><br/>
+                  Quantity: ${item.quantity}<br/>
+                  Price per day: $${item.pricePerDay}<br/>
+                  Item total: $${item.total}
+                </li>
+              `
+            )
+            .join("");
+
           // 📧 EMAIL AL DUEÑO
-          try {
-            await resend.emails.send({
-              from: "Wheely Good <bookings@wheelygoodrides.com.au>",
-              to: process.env.OWNER_EMAIL,
-              subject: "🚴 New paid booking - Wheely Good",
-              html: `
-                <h2>New Paid Booking</h2>
+         try {
+  await resend.emails.send({
+    from: "Wheely Good <bookings@wheelygoodrides.com.au>",
+    to: process.env.OWNER_EMAIL,
+    subject: "🚴 New paid booking - Wheely Good",
+    html: `
+      <h2>New Paid Booking</h2>
 
-                <p><strong>Name:</strong> ${booking.customerName}</p>
-                <p><strong>Email:</strong> ${booking.customerEmail}</p>
-                <p><strong>Phone:</strong> ${booking.customerPhone}</p>
+      <p><strong>Name:</strong> ${booking.customerName}</p>
+      <p><strong>Email:</strong> ${booking.customerEmail}</p>
+      <p><strong>Phone:</strong> ${booking.customerPhone}</p>
 
-                <p><strong>Bike:</strong> ${booking.bikeName}</p>
-                <p><strong>Quantity:</strong> ${booking.quantity}</p>
+      <h3>Bikes</h3>
+      <ul>${itemsHtml}</ul>
 
-                <p><strong>Dates:</strong> ${booking.startDate} → ${booking.endDate}</p>
-                <p><strong>Total days:</strong> ${booking.totalDays}</p>
-                <p><strong>Total paid:</strong> $${booking.amountTotal} ${currency}</p>
+      <p><strong>Dates:</strong> ${booking.startDate} → ${booking.endDate}</p>
+      <p><strong>Pickup time:</strong> ${booking.pickupTime || "-"}</p>
 
-                <p><strong>Notes:</strong> ${booking.notes || "-"}</p>
-              `,
-            });
+      <h3>Pickup Information</h3>
 
-            console.log("✅ OWNER BOOKING EMAIL SENT");
-          } catch (err) {
-            console.error("❌ OWNER BOOKING EMAIL ERROR:", err);
-          }
+      <p>
+        <strong>Pickup Address:</strong><br/>
+        Unit 1/122 Bangalow Rd<br/>
+        Byron Bay NSW 2481
+      </p>
+
+      <p>
+        <strong>Security Bond:</strong><br/>
+        $400 AUD refundable bond per bike to be collected at pickup.
+      </p>
+
+      <p><strong>Total days:</strong> ${booking.totalDays}</p>
+      <p><strong>Total paid:</strong> $${booking.amountTotal} ${currency}</p>
+
+      <p><strong>Notes:</strong> ${booking.notes || "-"}</p>
+    `,
+  });
+
+  console.log("✅ OWNER BOOKING EMAIL SENT");
+} catch (err) {
+  console.error("❌ OWNER BOOKING EMAIL ERROR:", err);
+}
 
           // 📧 EMAIL AL CLIENTE
-          try {
-            await resend.emails.send({
-              from: "Wheely Good <bookings@wheelygoodrides.com.au>",
-              to: booking.customerEmail,
-              subject: "Your bike booking is confirmed 🚴",
-              html: `
-                <h2>Hi ${booking.customerName}!</h2>
+         try {
+  await resend.emails.send({
+    from: "Wheely Good <bookings@wheelygoodrides.com.au>",
+    to: booking.customerEmail,
+    subject: "Your bike booking is confirmed 🚴",
+    html: `
+      <h2>Hi ${booking.customerName}!</h2>
 
-                <p>Your bike booking has been confirmed and paid successfully.</p>
+      <p>Your bike booking has been confirmed and paid successfully.</p>
 
-                <p><strong>Bike:</strong> ${booking.bikeName}</p>
-                <p><strong>Quantity:</strong> ${booking.quantity}</p>
-                <p><strong>Dates:</strong> ${booking.startDate} → ${booking.endDate}</p>
-                <p><strong>Total days:</strong> ${booking.totalDays}</p>
-                <p><strong>Total paid:</strong> $${booking.amountTotal} ${currency}</p>
+      <h3>Your bikes</h3>
+      <ul>${itemsHtml}</ul>
 
-                <br/>
+      <p><strong>Dates:</strong> ${booking.startDate} → ${booking.endDate}</p>
+      <p><strong>Pickup time:</strong> ${booking.pickupTime || "-"}</p>
+      <p><strong>Total days:</strong> ${booking.totalDays}</p>
+      <p><strong>Total paid:</strong> $${booking.amountTotal} ${currency}</p>
 
-                <p>Thank you for choosing Wheely Good 🚴</p>
-              `,
-            });
+      <h3>Pickup Information</h3>
 
-            console.log("✅ CUSTOMER BOOKING EMAIL SENT");
-          } catch (err) {
-            console.error("❌ CUSTOMER BOOKING EMAIL ERROR:", err);
-          }
+      <p>
+        <strong>Pickup Address:</strong><br/>
+        Unit 1/122 Bangalow Rd<br/>
+        Byron Bay NSW 2481
+      </p>
+
+      <p>
+        Your bikes will be ready for collection at the selected pickup time.
+      </p>
+
+      <p>
+        A refundable <strong>$400 AUD security bond per bike</strong> will be collected upon pickup.
+      </p>
+
+      <p>
+        Please bring a valid photo ID when collecting your bikes.
+      </p>
+
+      <p>
+        The bond will be fully refunded when the bikes are returned in the same condition.
+      </p>
+
+      <br/>
+
+      <p>Thank you for choosing Wheely Good 🚴</p>
+    `,
+  });
+
+  console.log("✅ CUSTOMER BOOKING EMAIL SENT");
+} catch (err) {
+  console.error("❌ CUSTOMER BOOKING EMAIL ERROR:", err);
+}
         } catch (err) {
           console.error("❌ BOOKING DB ERROR:", err);
         }

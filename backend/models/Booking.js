@@ -1,5 +1,39 @@
 const mongoose = require("mongoose");
 
+const bookingItemSchema = new mongoose.Schema(
+  {
+    bikeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Bike",
+      required: true,
+    },
+
+    bikeName: {
+      type: String,
+      required: true,
+    },
+
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    pricePerDay: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+
+    total: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+  },
+  { _id: false }
+);
+
 const bookingSchema = new mongoose.Schema(
   {
     stripeSessionId: {
@@ -40,15 +74,15 @@ const bookingSchema = new mongoose.Schema(
       trim: true,
     },
 
-    bikeId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Bike",
+    items: {
+      type: [bookingItemSchema],
       required: true,
-    },
-
-    bikeName: {
-      type: String,
-      required: true,
+      validate: {
+        validator: function (items) {
+          return items.length > 0;
+        },
+        message: "Booking must have at least one bike",
+      },
     },
 
     startDate: {
@@ -61,24 +95,21 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
 
+    pickupTime: {
+      type: String,
+      default: "",
+    },
+
+    pickupLocation: {
+      type: String,
+      default: "Unit 1/122 Bangalow Rd",
+    },
+
     totalDays: {
       type: Number,
       required: true,
       min: 1,
       max: 30,
-    },
-
-    quantity: {
-      type: Number,
-      required: true,
-      default: 1,
-      min: 1,
-    },
-
-    pricePerDay: {
-      type: Number,
-      required: true,
-      min: 0,
     },
 
     amountTotal: {

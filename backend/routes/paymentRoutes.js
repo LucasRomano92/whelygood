@@ -99,46 +99,18 @@ router.post("/create-checkout-session", async (req, res) => {
 router.post("/create-booking-checkout", async (req, res) => {
   try {
     const {
-      bikeId,
+      items,
       name,
       email,
       phone,
       startDate,
       endDate,
-      quantity = 1,
+      pickupTime = "",
       notes = "",
     } = req.body;
 
-    if (!bikeId || !name || !email || !phone || !startDate || !endDate) {
-      return res.status(400).json({
-        error: "Missing required booking fields",
-      });
-    }
-
-    const bike = await Bike.findById(bikeId);
-
-    if (!bike) {
-      return res.status(404).json({ error: "Bike not found" });
-    }
-
-    if (bike.category !== "rent") {
-      return res.status(400).json({ error: "This bike is not for rent" });
-    }
-
-    if (!bike.isActive) {
-      return res.status(400).json({ error: "This bike is not available" });
-    }
-
-    const requestedQuantity = Number(quantity);
-
-    if (!requestedQuantity || requestedQuantity < 1) {
-      return res.status(400).json({ error: "Invalid quantity" });
-    }
-
-    if (bike.stock < requestedQuantity) {
-      return res.status(400).json({
-        error: "Not enough stock available",
-      });
+    if (!items?.length || !name || !email || !phone || !startDate || !endDate) {
+      return res.status(400).json({ error: "Missing required booking fields" });
     }
 
     const today = new Date();
@@ -152,15 +124,11 @@ router.post("/create-booking-checkout", async (req, res) => {
     }
 
     if (start < today) {
-      return res.status(400).json({
-        error: "Start date cannot be in the past",
-      });
+      return res.status(400).json({ error: "Start date cannot be in the past" });
     }
 
     if (end < start) {
-      return res.status(400).json({
-        error: "End date must be after start date",
-      });
+      return res.status(400).json({ error: "End date must be after start date" });
     }
 
     const diffTime = end.getTime() - start.getTime();
@@ -172,44 +140,81 @@ router.post("/create-booking-checkout", async (req, res) => {
       });
     }
 
-    const pricePerDay = Number(bike.price);
-    const amountTotal = totalDays * pricePerDay * requestedQuantity;
+    const bookingItems = [];
+    const lineItems = [];
+    let amountTotal = 0;
+
+    for (const item of items) {
+      const bike = await Bike.findById(item.bikeId);
+      const requestedQuantity = Number(item.quantity || 1);
+
+      if (!bike) {
+        return res.status(404).json({ error: "Bike not found" });
+      }
+
+      if (bike.category !== "rent") {
+        return res.status(400).json({ error: `${bike.name} is not for rent` });
+      }
+
+      if (!bike.isActive) {
+        return res.status(400).json({ error: `${bike.name} is not available` });
+      }
+
+      if (!requestedQuantity || requestedQuantity < 1) {
+        return res.status(400).json({ error: "Invalid quantity" });
+      }
+
+      if (bike.stock < requestedQuantity) {
+        return res.status(400).json({
+          error: `Not enough stock available for ${bike.name}`,
+        });
+      }
+
+      const pricePerDay = Number(bike.price);
+      const itemTotal = pricePerDay * totalDays * requestedQuantity;
+      amountTotal += itemTotal;
+
+      bookingItems.push({
+        bikeId: bike._id.toString(),
+        bikeName: bike.name,
+        quantity: requestedQuantity,
+        pricePerDay,
+        total: itemTotal,
+      });
+
+      lineItems.push({
+        price_data: {
+          currency: "aud",
+          product_data: {
+            name: `${bike.name} rental`,
+            description: `${totalDays} day rental`,
+            images: bike.image ? [bike.image] : [],
+          },
+          unit_amount: Math.round(pricePerDay * totalDays * 100),
+        },
+        quantity: requestedQuantity,
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-
       customer_email: email,
-
-      line_items: [
-        {
-          price_data: {
-            currency: "aud",
-            product_data: {
-              name: `${bike.name} rental`,
-              description: `${totalDays} day rental`,
-              images: bike.image ? [bike.image] : [],
-            },
-            unit_amount: Math.round(pricePerDay * totalDays * 100),
-          },
-          quantity: requestedQuantity,
-        },
-      ],
+      line_items: lineItems,
 
       metadata: {
         type: "booking",
-        bikeId: bike._id.toString(),
-        bikeName: bike.name,
         customerName: name,
         customerEmail: email,
         customerPhone: phone,
         startDate,
         endDate,
+        pickupTime,
+        pickupLocation: "Unit 1/122 Bangalow Rd",
         totalDays: String(totalDays),
-        quantity: String(requestedQuantity),
-        pricePerDay: String(pricePerDay),
         amountTotal: String(amountTotal),
         notes,
+        items: JSON.stringify(bookingItems),
       },
 
       success_url: `${process.env.FRONTEND_URL}/success?type=booking`,
