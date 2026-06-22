@@ -105,14 +105,14 @@ className="flex h-14 w-14 items-center justify-center rounded-full border border
           </Link>
         );
       })}
-
+{/* 
       <Link
         href="/admin/login"
         onClick={closeMenu}
         className="rounded-xl border border-[#C8BEAA] bg-[#F8F7F2] px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#1F2933] transition-all duration-300 hover:scale-[1.02] hover:bg-[#1F2933] hover:text-white"
       >
         Admin
-      </Link>
+      </Link> */}
     </div>
   </nav>
 )}

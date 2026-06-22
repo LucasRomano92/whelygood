@@ -18,7 +18,22 @@ type Bike = {
 export default function BikeCard({ bike }: { bike: Bike }) {
   const isRent = bike.category === "rent";
 
+  const stockDotColor =
+    bike.stock >= 4
+      ? "bg-green-500"
+      : bike.stock >= 2
+      ? "bg-orange-500"
+      : "bg-red-500";
+
+  const stockLabel =
+    bike.stock > 0 ? `${bike.stock} available` : "Out of stock";
+
   const handleBuyNow = async () => {
+    if (bike.stock <= 0) {
+      toast.error("This bike is out of stock");
+      return;
+    }
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/payment/create-checkout-session`,
@@ -78,24 +93,12 @@ export default function BikeCard({ bike }: { bike: Bike }) {
       </Link>
 
       <div className="p-6">
-        <div className="flex items-center justify-between">
-         <div className="inline-flex items-center gap-2 rounded-full border border-[#C8BEAA] bg-white/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#1F2933]">
-  <span
-    className={`h-2.5 w-2.5 rounded-full ${
-      bike.stock >= 4
-        ? "bg-green-500"
-        : bike.stock >= 2
-        ? "bg-orange-500"
-        : "bg-red-500"
-    }`}
-  />
+        <div className="flex items-center justify-between gap-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#C8BEAA] bg-white/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#1F2933]">
+            <span className={`h-2.5 w-2.5 rounded-full ${stockDotColor}`} />
+            {stockLabel}
+          </div>
 
-  {isRent
-    ? bike.stock > 0
-      ? `${bike.stock} available`
-      : "Out of stock"
-    : "For sale"}
-</div>
           {isRent ? (
             <Link
               href={`/booking?bikeId=${bike._id}`}
@@ -104,14 +107,13 @@ export default function BikeCard({ bike }: { bike: Bike }) {
               Book now
             </Link>
           ) : (
-            <div className="flex gap-2">
-              <button
-                onClick={handleBuyNow}
-                className="rounded-full border border-[#1F2933] px-4 py-2 text-xs uppercase text-[#1F2933] transition hover:bg-[#1F2933] hover:text-white"
-              >
-                PAY NOW
-              </button>
-            </div>
+            <button
+              onClick={handleBuyNow}
+              disabled={bike.stock <= 0}
+              className="rounded-full border border-[#1F2933] px-4 py-2 text-xs uppercase text-[#1F2933] transition hover:bg-[#1F2933] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              PAY NOW
+            </button>
           )}
         </div>
       </div>
