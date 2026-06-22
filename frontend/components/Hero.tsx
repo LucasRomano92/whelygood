@@ -44,9 +44,6 @@ export default function Hero() {
     return () => clearInterval(interval);
   }, [slides.length]);
 
-  const fallbackImage = "/images/mono1.jpeg";
-  const activeImage = slides[currentSlide]?.imageUrl || fallbackImage;
-
   return (
     <section className="relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden px-6 text-center">
       <div className="absolute inset-0">
@@ -64,13 +61,7 @@ export default function Hero() {
             />
           ))
         ) : (
-          <Image
-            src={activeImage}
-            alt="Wheely Good bikes in Byron Bay"
-            fill
-            priority
-            className="object-cover"
-          />
+          <div className="absolute inset-0 bg-[#F8F7F2]" />
         )}
 
         <div className="absolute inset-0 bg-black/25" />
