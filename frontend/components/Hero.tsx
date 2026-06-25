@@ -11,28 +11,8 @@ type HeroSlide = {
   isActive: boolean;
 };
 
-export default function Hero() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL as string;
-
-  const [slides, setSlides] = useState<HeroSlide[]>([]);
+export default function Hero({ slides }: { slides: HeroSlide[] }) {
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    const fetchSlides = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/hero`);
-        const data = await res.json();
-
-        if (!res.ok) return;
-
-        setSlides(data);
-      } catch (error) {
-        console.error("Error loading hero slides:", error);
-      }
-    };
-
-    fetchSlides();
-  }, [API_URL]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -47,22 +27,18 @@ export default function Hero() {
   return (
     <section className="relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden px-6 text-center">
       <div className="absolute inset-0">
-        {slides.length > 0 ? (
-          slides.map((slide, index) => (
-            <Image
-              key={slide._id}
-              src={slide.imageUrl}
-              alt={`Wheely Good hero slide ${index + 1}`}
-              fill
-              priority={index === 0}
-              className={`object-cover transition-opacity duration-1000 ${
-                index === currentSlide ? "opacity-100" : "opacity-0"
-              }`}
-            />
-          ))
-        ) : (
-          <div className="absolute inset-0 bg-[#F8F7F2]" />
-        )}
+        {slides.map((slide, index) => (
+          <Image
+            key={slide._id}
+            src={slide.imageUrl}
+            alt={`Wheely Good hero slide ${index + 1}`}
+            fill
+            priority={index === 0}
+            className={`object-cover transition-opacity duration-1000 ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
 
         <div className="absolute inset-0 bg-black/25" />
       </div>
