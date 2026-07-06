@@ -154,14 +154,14 @@ export default function BikeActions({ bikeId, category }: Props) {
   }
 
  return (
-  <div className="mt-8 space-y-6">
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+  <div className="mt-8 w-full space-y-6 overflow-hidden">
+    <div className="w-full rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5">
       <h3 className="text-sm font-bold uppercase tracking-[0.18em] text-white">
         Delivery Method
       </h3>
 
       <div className="mt-4 space-y-3">
-        <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-4">
+        <label className="flex w-full cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-4 text-sm sm:items-center sm:text-base">
           <input
             type="radio"
             name="deliveryMethod"
@@ -176,11 +176,12 @@ export default function BikeActions({ bikeId, category }: Props) {
               setShippingLabel("Local Pickup");
               setDeliveryEstimate("Pickup from Wheely Good");
             }}
+            className="mt-1 sm:mt-0"
           />
-          <span>📍 Local Pickup — Free</span>
+          <span className="break-words">📍 Local Pickup — Free</span>
         </label>
 
-        <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 p-4">
+        <label className="flex w-full cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-4 text-sm sm:items-center sm:text-base">
           <input
             type="radio"
             name="deliveryMethod"
@@ -195,8 +196,9 @@ export default function BikeActions({ bikeId, category }: Props) {
               setShippingLabel("Delivery address required");
               setDeliveryEstimate("Select an address to calculate shipping");
             }}
+            className="mt-1 sm:mt-0"
           />
-          <span>🚚 Delivery / Shipping Calculator</span>
+          <span className="break-words">🚚 Delivery / Shipping Calculator</span>
         </label>
       </div>
 
@@ -206,7 +208,7 @@ export default function BikeActions({ bikeId, category }: Props) {
           <p className="mt-1">
             Pick up your bike directly from Wheely Good in Byron Bay.
           </p>
-          <p className="mt-2 font-semibold text-white">
+          <p className="mt-2 break-words font-semibold text-white">
             Unit 1/122 Bangalow Rd, Byron Bay NSW
           </p>
         </div>
@@ -228,11 +230,11 @@ export default function BikeActions({ bikeId, category }: Props) {
               <input
                 type="text"
                 placeholder="Start typing your delivery address..."
-                className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-white outline-none"
+                className="w-full min-w-0 rounded-xl border border-white/10 bg-black px-4 py-3 text-sm text-white outline-none sm:text-base"
               />
             </Autocomplete>
           ) : (
-            <div className="rounded-xl border border-white/10 bg-black px-4 py-3 text-neutral-400">
+            <div className="rounded-xl border border-white/10 bg-black px-4 py-3 text-sm text-neutral-400 sm:text-base">
               Loading address search...
             </div>
           )}
@@ -241,7 +243,7 @@ export default function BikeActions({ bikeId, category }: Props) {
             <div className="rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-200">
               Selected address:
               <br />
-              <span className="font-semibold text-white">
+              <span className="break-words font-semibold text-white">
                 {deliveryAddress}
               </span>
             </div>
@@ -250,13 +252,13 @@ export default function BikeActions({ bikeId, category }: Props) {
       )}
 
       <div className="mt-5 rounded-xl bg-black/40 p-4 text-sm text-neutral-300">
-        <p>Method: {shippingLabel}</p>
+        <p className="break-words">Method: {shippingLabel}</p>
 
         {distanceKm !== null && (
           <p className="mt-1">Distance: {distanceKm} km</p>
         )}
 
-        <p className="mt-1">Estimate: {deliveryEstimate}</p>
+        <p className="mt-1 break-words">Estimate: {deliveryEstimate}</p>
 
         <p className="mt-2 text-lg font-bold text-white">
           {isCalculating ? "Calculating..." : `Shipping: $${shippingPrice}`}
@@ -264,11 +266,11 @@ export default function BikeActions({ bikeId, category }: Props) {
       </div>
     </div>
 
-    <div className="flex gap-3">
+    <div className="flex w-full">
       <button
         onClick={handleCardPayment}
         disabled={isCalculating}
-        className="rounded-full bg-white px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-black transition hover:bg-white/80 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full rounded-full bg-white px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-black transition hover:bg-white/80 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         Pay Now
       </button>
