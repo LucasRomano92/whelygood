@@ -7,6 +7,52 @@ const router = express.Router();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+const WHEELY_GOOD_LOCATION = {
+  lat: -28.6567,
+  lng: 153.6129,
+};
+
+const getDistanceKm = (lat1, lng1, lat2, lng2) => {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+};
+
+const getShopShipping = (distanceKm) => {
+  if (distanceKm <= 20) {
+    return {
+      shippingPrice: 0,
+      shippingLabel: "Byron Shire delivery — Armada",
+      deliveryEstimate: "Same day if ordered before 10:00 AM",
+    };
+  }
+
+  if (distanceKm <= 50) {
+    return {
+      shippingPrice: 120,
+      shippingLabel: "Armada delivery",
+      deliveryEstimate: "1–2 business days",
+    };
+  }
+
+  return {
+    shippingPrice: 200,
+    shippingLabel: "Box shipping",
+    deliveryEstimate: "3–7 business days",
+  };
+};
+
 const getRentalPrice = (bike, totalDays) => {
   if (totalDays === 1) return Number(bike.rentalPrices?.day1 || 0);
   if (totalDays === 2) return Number(bike.rentalPrices?.day2 || 0);
@@ -20,9 +66,52 @@ const getRentalPrice = (bike, totalDays) => {
   return 0;
 };
 
+router.post("/calculate-shop-shipping", async (req, res) => {
+  try {
+    const { lat, lng } = req.body;
+
+    if (lat === undefined || lng === undefined) {
+      return res.status(400).json({ error: "lat and lng are required" });
+    }
+
+    const customerLat = Number(lat);
+    const customerLng = Number(lng);
+
+    if (Number.isNaN(customerLat) || Number.isNaN(customerLng)) {
+      return res.status(400).json({ error: "Invalid coordinates" });
+    }
+
+    const distanceKm = getDistanceKm(
+      WHEELY_GOOD_LOCATION.lat,
+      WHEELY_GOOD_LOCATION.lng,
+      customerLat,
+      customerLng
+    );
+
+    const shipping = getShopShipping(distanceKm);
+
+    res.status(200).json({
+      distanceKm: Number(distanceKm.toFixed(1)),
+      ...shipping,
+    });
+  } catch (error) {
+    console.error("Calculate shop shipping error:", error);
+    res.status(500).json({
+      error: "Error calculating shipping",
+      details: error.message,
+    });
+  }
+});
+
 router.post("/create-checkout-session", async (req, res) => {
   try {
-    const { bikeId } = req.body;
+    const {
+      bikeId,
+      deliveryMethod = "pickup",
+      deliveryAddress = "",
+      lat,
+      lng,
+    } = req.body;
 
     if (!bikeId) {
       return res.status(400).json({ error: "bikeId is required" });
@@ -38,59 +127,83 @@ router.post("/create-checkout-session", async (req, res) => {
       return res.status(400).json({ error: "This bike is not for sale" });
     }
 
-    const setting = await Setting.findOne({ key: "shippingPrice" });
-    const shippingPrice = setting ? setting.value : 150;
+    let shippingPrice = 0;
+    let shippingLabel = "Local Pickup";
+    let deliveryEstimate = "Pickup from Wheely Good";
+    let distanceKm = 0;
+
+    if (deliveryMethod === "delivery") {
+      if (!deliveryAddress || lat === undefined || lng === undefined) {
+        return res.status(400).json({
+          error: "Delivery address and coordinates are required",
+        });
+      }
+
+      const customerLat = Number(lat);
+      const customerLng = Number(lng);
+
+      if (Number.isNaN(customerLat) || Number.isNaN(customerLng)) {
+        return res.status(400).json({ error: "Invalid delivery coordinates" });
+      }
+
+      distanceKm = getDistanceKm(
+        WHEELY_GOOD_LOCATION.lat,
+        WHEELY_GOOD_LOCATION.lng,
+        customerLat,
+        customerLng
+      );
+
+      const shipping = getShopShipping(distanceKm);
+
+      shippingPrice = shipping.shippingPrice;
+      shippingLabel = shipping.shippingLabel;
+      deliveryEstimate = shipping.deliveryEstimate;
+    }
+
+    const lineItems = [
+      {
+        price_data: {
+          currency: "aud",
+          product_data: {
+            name: bike.name,
+            description: bike.model || bike.description,
+            images: bike.image ? [bike.image] : [],
+          },
+          unit_amount: Math.round(Number(bike.price) * 100),
+        },
+        quantity: 1,
+      },
+    ];
+
+    if (shippingPrice > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "aud",
+          product_data: {
+            name: shippingLabel,
+            description: deliveryEstimate,
+          },
+          unit_amount: Math.round(Number(shippingPrice) * 100),
+        },
+        quantity: 1,
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-
-      line_items: [
-        {
-          price_data: {
-            currency: "aud",
-            product_data: {
-              name: bike.name,
-              description: bike.model || bike.description,
-              images: bike.image ? [bike.image] : [],
-            },
-            unit_amount: Math.round(Number(bike.price) * 100),
-          },
-          quantity: 1,
-        },
-      ],
-
-      shipping_address_collection: {
-        allowed_countries: ["AU"],
-      },
-
-      shipping_options: [
-        {
-          shipping_rate_data: {
-            type: "fixed_amount",
-            fixed_amount: {
-              amount: Math.round(Number(shippingPrice) * 100),
-              currency: "aud",
-            },
-            display_name: "Standard shipping",
-            delivery_estimate: {
-              minimum: {
-                unit: "business_day",
-                value: 3,
-              },
-              maximum: {
-                unit: "business_day",
-                value: 7,
-              },
-            },
-          },
-        },
-      ],
+      line_items: lineItems,
 
       metadata: {
         type: "shop",
         bikeId: bike._id.toString(),
         bikeName: bike.name,
+        deliveryMethod,
+        deliveryAddress,
+        distanceKm: String(Number(distanceKm.toFixed(1))),
+        shippingPrice: String(shippingPrice),
+        shippingLabel,
+        deliveryEstimate,
       },
 
       success_url: `${process.env.FRONTEND_URL}/success`,
@@ -147,9 +260,7 @@ router.post("/create-booking-checkout", async (req, res) => {
     const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
     if (![1, 2, 3, 4, 5, 6, 7, 30].includes(totalDays)) {
-      return res.status(400).json({
-        error: "Invalid rental duration",
-      });
+      return res.status(400).json({ error: "Invalid rental duration" });
     }
 
     const rackPrices = {
