@@ -261,12 +261,7 @@ export default function BikeActions({ bikeId, category }: Props) {
           Card
         </button>
 
-        <button
-          onClick={handlePayPalPayment}
-          className="rounded-full border border-yellow-400 px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-yellow-400 transition hover:bg-yellow-400 hover:text-black"
-        >
-          PayPal
-        </button>
+       
       </div>
     </div>
   );
