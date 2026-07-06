@@ -258,7 +258,7 @@ export default function BikeActions({ bikeId, category }: Props) {
           disabled={isCalculating}
           className="rounded-full bg-white px-8 py-4 text-sm font-bold uppercase tracking-[0.18em] text-black transition hover:bg-white/80 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Card
+          Pay Now
         </button>
 
        

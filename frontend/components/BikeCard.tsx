@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { toast } from "sonner";
 
 type Bike = {
   _id: string;
@@ -28,40 +27,9 @@ export default function BikeCard({ bike }: { bike: Bike }) {
   const stockLabel =
     bike.stock > 0 ? `${bike.stock} available` : "Out of stock";
 
-  const handleBuyNow = async () => {
-    if (bike.stock <= 0) {
-      toast.error("This bike is out of stock");
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/payment/create-checkout-session`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ bikeId: bike._id }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        toast.error("Error creating payment");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Payment error");
-    }
-  };
-
   return (
     <article className="overflow-hidden rounded-[28px] border border-[#C8BEAA] bg-[#DDD5C4]/60 transition hover:-translate-y-1 hover:border-[#B8AC96]">
-      <Link href={`/bikes/${bike._id}`} className="block">
+      <Link href={`/shop/${bike._id}`} className="block">
         <div className="relative h-64 w-full">
           <Image
             src={bike.image}
@@ -107,13 +75,12 @@ export default function BikeCard({ bike }: { bike: Bike }) {
               Book now
             </Link>
           ) : (
-            <button
-              onClick={handleBuyNow}
-              disabled={bike.stock <= 0}
-              className="rounded-full border border-[#1F2933] px-4 py-2 text-xs uppercase text-[#1F2933] transition hover:bg-[#1F2933] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            <Link
+              href={`/shop/${bike._id}`}
+              className="rounded-full border border-[#1F2933] px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#1F2933] transition hover:bg-[#1F2933] hover:text-white"
             >
-              PAY NOW
-            </button>
+              View Details
+            </Link>
           )}
         </div>
       </div>
