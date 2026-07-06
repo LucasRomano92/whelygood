@@ -148,7 +148,6 @@ router.post(
               <p><strong>Surfboard Rack:</strong> No</p>
             `;
 
-          // 📧 EMAIL AL DUEÑO
           try {
             await resend.emails.send({
               from: "Wheely Good <bookings@wheelygoodrides.com.au>",
@@ -194,7 +193,6 @@ router.post(
             console.error("❌ OWNER BOOKING EMAIL ERROR:", err);
           }
 
-          // 📧 EMAIL AL CLIENTE
           try {
             await resend.emails.send({
               from: "Wheely Good <bookings@wheelygoodrides.com.au>",
@@ -259,6 +257,62 @@ router.post(
       // =========================
       // 🛒 SHOP ORDER PAYMENT
       // =========================
+
+      const deliveryMethod = metadata.deliveryMethod || "pickup";
+      const deliveryAddress = metadata.deliveryAddress || "";
+      const distanceKm = metadata.distanceKm || "";
+      const shippingPrice = Number(metadata.shippingPrice || 0);
+      const shippingLabel =
+        metadata.shippingLabel ||
+        (deliveryMethod === "pickup" ? "Local Pickup" : "Delivery");
+      const deliveryEstimate =
+        metadata.deliveryEstimate ||
+        (deliveryMethod === "pickup"
+          ? "Pickup from Wheely Good"
+          : "Our team will contact you with delivery details");
+
+      const stripeAddressHtml = address
+        ? `
+          ${address?.line1 || ""}<br/>
+          ${address?.line2 || ""}<br/>
+          ${address?.city || ""}<br/>
+          ${address?.state || ""}<br/>
+          ${address?.postal_code || ""}<br/>
+          ${address?.country || ""}
+        `
+        : "-";
+
+      const deliveryAddressHtml =
+        deliveryMethod === "pickup"
+          ? `
+            <p>
+              <strong>Pickup Address:</strong><br/>
+              Unit 1/122 Bangalow Rd<br/>
+              Byron Bay NSW 2481
+            </p>
+          `
+          : `
+            <p>
+              <strong>Delivery Address:</strong><br/>
+              ${deliveryAddress || stripeAddressHtml}
+            </p>
+          `;
+
+      const deliveryInfoHtml = `
+        <h3>Delivery Information</h3>
+
+        <p><strong>Delivery Method:</strong> ${shippingLabel}</p>
+        ${
+          distanceKm
+            ? `<p><strong>Distance from Wheely Good:</strong> ${distanceKm} km</p>`
+            : ""
+        }
+        <p><strong>Shipping:</strong> $${shippingPrice} ${currency}</p>
+        <p><strong>Estimated Delivery:</strong> ${deliveryEstimate}</p>
+
+        ${deliveryAddressHtml}
+      `;
+
       try {
         const existingOrder = await Order.findOne({
           stripeSessionId: session.id,
@@ -278,13 +332,20 @@ router.post(
             currency: session.currency || "aud",
 
             shippingAddress: {
-              line1: address?.line1 || "",
+              line1: address?.line1 || deliveryAddress || "",
               line2: address?.line2 || "",
               city: address?.city || "",
               state: address?.state || "",
               postalCode: address?.postal_code || "",
-              country: address?.country || "",
+              country: address?.country || "AU",
             },
+
+            deliveryMethod,
+            deliveryAddress,
+            distanceKm: Number(distanceKm || 0),
+            shippingPrice,
+            shippingLabel,
+            deliveryEstimate,
 
             status: "paid",
           });
@@ -309,17 +370,13 @@ router.post(
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
 
-            <p><strong>Total:</strong> $${total} ${currency}</p>
+            <h3>Bike</h3>
+            <p><strong>${metadata.bikeName || "Bike purchase"}</strong></p>
 
-            <h3>Shipping Address</h3>
+            ${deliveryInfoHtml}
 
-            <p>
-              ${address?.line1 || ""}<br/>
-              ${address?.city || ""}<br/>
-              ${address?.state || ""}<br/>
-              ${address?.postal_code || ""}<br/>
-              ${address?.country || ""}
-            </p>
+            <h3>Payment</h3>
+            <p><strong>Total paid:</strong> $${total} ${currency}</p>
           `,
         });
 
@@ -341,6 +398,12 @@ router.post(
 
             <p>Your payment was received successfully.</p>
 
+            <h3>Your Order</h3>
+            <p><strong>${metadata.bikeName || "Bike purchase"}</strong></p>
+
+            ${deliveryInfoHtml}
+
+            <h3>Payment</h3>
             <p><strong>Total paid:</strong> $${total} ${currency}</p>
 
             <p>Our team will contact you shortly with the next steps.</p>

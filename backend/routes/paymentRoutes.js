@@ -33,7 +33,7 @@ const getShopShipping = (distanceKm) => {
   if (distanceKm <= 20) {
     return {
       shippingPrice: 0,
-      shippingLabel: "Byron Shire delivery — Armada",
+      shippingLabel: "Byron Shire delivery — Assembled Bike Delivery",
       deliveryEstimate: "Same day if ordered before 10:00 AM",
     };
   }
@@ -41,7 +41,7 @@ const getShopShipping = (distanceKm) => {
   if (distanceKm <= 50) {
     return {
       shippingPrice: 120,
-      shippingLabel: "Armada delivery",
+      shippingLabel: "Assembled Bike Delivery",
       deliveryEstimate: "1–2 business days",
     };
   }
