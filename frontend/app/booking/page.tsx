@@ -482,11 +482,11 @@ return (
     className="block h-[54px] w-full rounded-xl border border-[#C8BEAA] bg-white px-4 text-[#1F2933] outline-none"
   >
     <option value="Unit 1/122 Bangalow Rd, Byron Bay NSW">
-      Wheely Good E-Rides — Unit 1/122 Bangalow Rd
+      Wheely Good E-Rides — Unit 1/122 Bangalow Rd - BYRON BAY
     </option>
 
     <option value="Wheely Good E-Rides - 88-94 Centennial Cct, Byron Bay NSW 2481">
-      Wheely Good E-Rides — 88-94 Centennial Cct
+      Wheely Good E-Rides — 88-94 Centennial Cct - INDUSTRIAL STATE
     </option>
   </select>
 
