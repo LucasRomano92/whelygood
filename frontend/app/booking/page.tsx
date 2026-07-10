@@ -53,17 +53,24 @@ function BookingContent() {
     30: 45,
   };
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    bikeId: "",
-    startDate: "",
-    pickupTime: "",
-    duration: "1",
-    surfboardRack: false,
-    notes: "",
-  });
+ const [form, setForm] = useState({
+  name: "",
+  email: "",
+  phone: "",
+  bikeId: "",
+
+  pickupLocation: "Unit 1/122 Bangalow Rd, Byron Bay NSW",
+
+  startDate: "",
+  pickupTime: "",
+  duration: "1",
+
+  surfboardRack: false,
+  childSeat: false,
+  rearBasket: false,
+
+  notes: "",
+});
 
   const durationNumber = Number(form.duration);
 
@@ -84,16 +91,18 @@ function BookingContent() {
     ? getBikeRentalPrice(selectedBike, durationNumber)
     : 0;
 
-  const rackPrice = form.surfboardRack
-    ? RACK_PRICES[durationNumber] || 0
-    : 0;
+const accessoryPrice = RACK_PRICES[durationNumber] || 0;
+
+const rackPrice = form.surfboardRack ? accessoryPrice : 0;
+const childSeatPrice = form.childSeat ? accessoryPrice : 0;
+const rearBasketPrice = form.rearBasket ? accessoryPrice : 0;
 
   const bikesTotal = cart.reduce((total, item) => {
     const itemPrice = getBikeRentalPrice(item, durationNumber);
     return total + itemPrice * item.quantity;
   }, 0);
 
-  const cartTotal = bikesTotal + rackPrice;
+  const cartTotal = bikesTotal + rackPrice + childSeatPrice + rearBasketPrice;
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
@@ -153,13 +162,16 @@ function BookingContent() {
   ) => {
     const { name, value } = e.target;
 
-    if (name === "surfboardRack" && e.target instanceof HTMLInputElement) {
-      setForm({
-        ...form,
-        surfboardRack: e.target.checked,
-      });
-      return;
-    }
+   if (
+  ["surfboardRack", "childSeat", "rearBasket"].includes(name) &&
+  e.target instanceof HTMLInputElement
+) {
+  setForm({
+    ...form,
+    [name]: e.target.checked,
+  });
+  return;
+}
 
     setForm({
       ...form,
@@ -363,12 +375,22 @@ function BookingContent() {
             startDate: form.startDate,
             endDate,
             pickupTime: form.pickupTime,
-            duration: Number(form.duration),
-            surfboardRack: form.surfboardRack,
-            rackPrice,
-            rentalPrice: bikesTotal,
-            totalPrice: cartTotal,
-            notes: form.notes,
+pickupLocation: form.pickupLocation,
+
+duration: Number(form.duration),
+
+surfboardRack: form.surfboardRack,
+childSeat: form.childSeat,
+rearBasket: form.rearBasket,
+
+rackPrice,
+childSeatPrice,
+rearBasketPrice,
+
+accessoryPrice,
+rentalPrice: bikesTotal,
+totalPrice: cartTotal,
+notes: form.notes,
           }),
         }
       );
@@ -445,18 +467,33 @@ return (
                     </h2>
 
                     <div className="mt-4 rounded-2xl border-2 border-[#1F2933] bg-white p-5">
-                      <p className="text-sm font-extrabold uppercase tracking-wide text-[#7A7468]">
-                        📍 Pick Up & Return Location
-                      </p>
+  <p className="text-sm font-extrabold uppercase tracking-wide text-[#7A7468]">
+    📍 Pick Up & Return Location
+  </p>
 
-                      <h3 className="mt-2 text-xl font-extrabold text-[#1F2933]">
-                        Unit 1/122 Bangalow Rd, Byron Bay NSW
-                      </h3>
+  <label className="mt-4 mb-2 block text-sm font-semibold text-[#5B6470]">
+    Select Pickup Point
+  </label>
 
-                      <p className="mt-2 text-sm font-semibold text-[#5B6470]">
-                        Pick up and drop off your bike from this address.
-                      </p>
-                    </div>
+  <select
+    name="pickupLocation"
+    value={form.pickupLocation}
+    onChange={handleChange}
+    className="block h-[54px] w-full rounded-xl border border-[#C8BEAA] bg-white px-4 text-[#1F2933] outline-none"
+  >
+    <option value="Unit 1/122 Bangalow Rd, Byron Bay NSW">
+      Wheely Good E-Rides — Unit 1/122 Bangalow Rd
+    </option>
+
+    <option value="Wheely Good E-Rides - 88-94 Centennial Cct, Byron Bay NSW 2481">
+      Wheely Good E-Rides — 88-94 Centennial Cct
+    </option>
+  </select>
+
+  <p className="mt-3 text-sm font-semibold text-[#5B6470]">
+    Pick up and return your bike at the selected location.
+  </p>
+</div>
                   </div>
 
                   <div className="grid min-w-0 gap-4 md:grid-cols-2">
@@ -522,23 +559,63 @@ return (
                     </select>
                   </div>
 
-                  <label className="flex min-w-0 items-center gap-3 rounded-xl border border-[#C8BEAA] bg-white p-4 text-[#1F2933]">
-                    <input
-                      type="checkbox"
-                      name="surfboardRack"
-                      checked={form.surfboardRack}
-                      onChange={handleChange}
-                      className="h-5 w-5 shrink-0"
-                    />
+                <div className="space-y-3">
 
-                    <span>
-                      <strong>Add Surfboard Rack</strong>
-                      <br />
-                      <span className="text-sm text-[#5B6470]">
-                        +${RACK_PRICES[durationNumber] || 0}
-                      </span>
-                    </span>
-                  </label>
+  <label className="flex items-center gap-3 rounded-xl border border-[#C8BEAA] bg-white p-4 text-[#1F2933]">
+    <input
+      type="checkbox"
+      name="surfboardRack"
+      checked={form.surfboardRack}
+      onChange={handleChange}
+      className="h-5 w-5"
+    />
+
+    <span>
+      <strong>Surfboard Rack</strong>
+      <br />
+      <span className="text-sm text-[#5B6470]">
+        +${accessoryPrice}
+      </span>
+    </span>
+  </label>
+
+  <label className="flex items-center gap-3 rounded-xl border border-[#C8BEAA] bg-white p-4 text-[#1F2933]">
+    <input
+      type="checkbox"
+      name="childSeat"
+      checked={form.childSeat}
+      onChange={handleChange}
+      className="h-5 w-5"
+    />
+
+    <span>
+      <strong>Child Seat</strong>
+      <br />
+      <span className="text-sm text-[#5B6470]">
+        +${accessoryPrice}
+      </span>
+    </span>
+  </label>
+
+  <label className="flex items-center gap-3 rounded-xl border border-[#C8BEAA] bg-white p-4 text-[#1F2933]">
+    <input
+      type="checkbox"
+      name="rearBasket"
+      checked={form.rearBasket}
+      onChange={handleChange}
+      className="h-5 w-5"
+    />
+
+    <span>
+      <strong>Rear Basket</strong>
+      <br />
+      <span className="text-sm text-[#5B6470]">
+        +${accessoryPrice}
+      </span>
+    </span>
+  </label>
+
+</div>
 
                   {cart.length > 0 && (
                     <div className="min-w-0 rounded-2xl border border-[#C8BEAA] bg-white p-5">
@@ -604,10 +681,22 @@ return (
                                 </div>
 
                                 {form.surfboardRack && (
-                                  <p className="mt-2 text-sm text-[#5B6470]">
-                                    Surfboard rack: ${rackPrice}
-                                  </p>
-                                )}
+  <p className="mt-2 text-sm text-[#5B6470]">
+    Surfboard rack: ${rackPrice}
+  </p>
+)}
+
+{form.childSeat && (
+  <p className="mt-2 text-sm text-[#5B6470]">
+    Child seat: ${childSeatPrice}
+  </p>
+)}
+
+{form.rearBasket && (
+  <p className="mt-2 text-sm text-[#5B6470]">
+    Rear basket: ${rearBasketPrice}
+  </p>
+)}
                               </div>
                             </div>
 
@@ -788,6 +877,15 @@ return (
                     </p>
 
                     <div className="mt-4 space-y-4">
+                      <div className="rounded-xl border border-[#C8BEAA] bg-[#F8F7F2] p-4">
+  <p className="text-sm font-bold uppercase text-[#7A7468]">
+    Pickup & Return Location
+  </p>
+
+  <p className="mt-2 font-bold text-[#1F2933]">
+    {form.pickupLocation}
+  </p>
+</div>
                       {cart.map((item) => {
                         const itemPrice = getBikeRentalPrice(
                           item,
@@ -842,16 +940,25 @@ return (
                       })}
 
                       {form.surfboardRack && (
-                        <div className="flex items-center justify-between gap-4 border-b border-[#C8BEAA] pb-4">
-                          <p className="font-bold text-[#1F2933]">
-                            Surfboard Rack Add-on
-                          </p>
+  <div className="flex items-center justify-between gap-4 border-b border-[#C8BEAA] pb-4">
+    <p className="font-bold text-[#1F2933]">Surfboard Rack Add-on</p>
+    <p className="font-bold text-[#1F2933]">${rackPrice}</p>
+  </div>
+)}
 
-                          <p className="font-bold text-[#1F2933]">
-                            ${rackPrice}
-                          </p>
-                        </div>
-                      )}
+{form.childSeat && (
+  <div className="flex items-center justify-between gap-4 border-b border-[#C8BEAA] pb-4">
+    <p className="font-bold text-[#1F2933]">Child Seat Add-on</p>
+    <p className="font-bold text-[#1F2933]">${childSeatPrice}</p>
+  </div>
+)}
+
+{form.rearBasket && (
+  <div className="flex items-center justify-between gap-4 border-b border-[#C8BEAA] pb-4">
+    <p className="font-bold text-[#1F2933]">Rear Basket Add-on</p>
+    <p className="font-bold text-[#1F2933]">${rearBasketPrice}</p>
+  </div>
+)}
                     </div>
 
                     <div className="mt-4 border-t border-[#C8BEAA] pt-4 text-right">

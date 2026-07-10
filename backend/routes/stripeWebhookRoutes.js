@@ -101,17 +101,21 @@ router.post(
 
             startDate: metadata.startDate,
             endDate: metadata.endDate,
-            pickupTime: metadata.pickupTime || "",
-            pickupLocation:
-              metadata.pickupLocation || "Unit 1/122 Bangalow Rd",
+           pickupTime: metadata.pickupTime || "",
+pickupLocation:
+  metadata.pickupLocation || "Unit 1/122 Bangalow Rd, Byron Bay NSW",
 
-            totalDays: Number(metadata.totalDays),
-            surfboardRack: metadata.surfboardRack === "true",
-            rackPrice: Number(metadata.rackPrice || 0),
-            amountTotal: total,
-            currency: session.currency || "aud",
+totalDays: Number(metadata.totalDays),
 
-            notes: metadata.notes || "",
+surfboardRack: metadata.surfboardRack === "true",
+childSeat: metadata.childSeat === "true",
+rearBasket: metadata.rearBasket === "true",
+
+rackPrice: Number(metadata.rackPrice || 0),
+childSeatPrice: Number(metadata.childSeatPrice || 0),
+rearBasketPrice: Number(metadata.rearBasketPrice || 0),
+
+amountTotal: total,
           });
 
           for (const item of items) {
@@ -137,16 +141,11 @@ router.post(
             )
             .join("");
 
-          const rackHtml = booking.surfboardRack
-            ? `
-              <p>
-                <strong>Surfboard Rack:</strong> Yes<br/>
-                <strong>Rack price:</strong> $${booking.rackPrice}
-              </p>
-            `
-            : `
-              <p><strong>Surfboard Rack:</strong> No</p>
-            `;
+          const accessoriesHtml = `
+  <p><strong>Surfboard Rack:</strong> ${booking.surfboardRack ? `Yes - $${booking.rackPrice}` : "No"}</p>
+  <p><strong>Child Seat:</strong> ${booking.childSeat ? `Yes - $${booking.childSeatPrice}` : "No"}</p>
+  <p><strong>Rear Basket:</strong> ${booking.rearBasket ? `Yes - $${booking.rearBasketPrice}` : "No"}</p>
+`;
 
           try {
             await resend.emails.send({
@@ -163,7 +162,7 @@ router.post(
                 <h3>Bikes</h3>
                 <ul>${itemsHtml}</ul>
 
-                ${rackHtml}
+                ${accessoriesHtml}
 
                 <p><strong>Dates:</strong> ${booking.startDate} → ${booking.endDate}</p>
                 <p><strong>Pickup time:</strong> ${booking.pickupTime || "-"}</p>
@@ -206,7 +205,7 @@ router.post(
                 <h3>Your bikes</h3>
                 <ul>${itemsHtml}</ul>
 
-                ${rackHtml}
+                ${accessoriesHtml}
 
                 <p><strong>Dates:</strong> ${booking.startDate} → ${booking.endDate}</p>
                 <p><strong>Pickup time:</strong> ${booking.pickupTime || "-"}</p>

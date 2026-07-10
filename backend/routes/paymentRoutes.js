@@ -230,8 +230,13 @@ router.post("/create-booking-checkout", async (req, res) => {
       startDate,
       endDate,
       pickupTime = "",
-      surfboardRack = false,
-      notes = "",
+pickupLocation = "Unit 1/122 Bangalow Rd, Byron Bay NSW",
+
+surfboardRack = false,
+childSeat = false,
+rearBasket = false,
+
+notes = "",
     } = req.body;
 
     if (!items?.length || !name || !email || !phone || !startDate || !endDate) {
@@ -338,26 +343,50 @@ router.post("/create-booking-checkout", async (req, res) => {
       });
     }
 
-    const rackPrice = surfboardRack ? rackPrices[totalDays] || 0 : 0;
+    const accessoryPrice = rackPrices[totalDays] || 0;
 
-    if (rackPrice > 0) {
-      amountTotal += rackPrice;
+const rackPrice = surfboardRack ? accessoryPrice : 0;
+const childSeatPrice = childSeat ? accessoryPrice : 0;
+const rearBasketPrice = rearBasket ? accessoryPrice : 0;
 
-      lineItems.push({
-        price_data: {
-          currency: "aud",
-          product_data: {
-            name: "Surfboard Rack Add-on",
-            description:
-              totalDays === 30
-                ? "Surfboard rack for 1 month rental"
-                : `Surfboard rack for ${totalDays} day rental`,
-          },
-          unit_amount: Math.round(rackPrice * 100),
-        },
-        quantity: 1,
-      });
-    }
+   const accessories = [
+  {
+    enabled: surfboardRack,
+    name: "Surfboard Rack Add-on",
+    price: rackPrice,
+  },
+  {
+    enabled: childSeat,
+    name: "Child Seat Add-on",
+    price: childSeatPrice,
+  },
+  {
+    enabled: rearBasket,
+    name: "Rear Basket Add-on",
+    price: rearBasketPrice,
+  },
+];
+
+for (const accessory of accessories) {
+  if (!accessory.enabled) continue;
+
+  amountTotal += accessory.price;
+
+  lineItems.push({
+    price_data: {
+      currency: "aud",
+      product_data: {
+        name: accessory.name,
+        description:
+          totalDays === 30
+            ? `${accessory.name} for 1 month rental`
+            : `${accessory.name} for ${totalDays} day rental`,
+      },
+      unit_amount: Math.round(accessory.price * 100),
+    },
+    quantity: 1,
+  });
+}
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -372,14 +401,21 @@ router.post("/create-booking-checkout", async (req, res) => {
         customerPhone: phone,
         startDate,
         endDate,
-        pickupTime,
-        pickupLocation: "Unit 1/122 Bangalow Rd",
-        totalDays: String(totalDays),
-        surfboardRack: String(Boolean(surfboardRack)),
-        rackPrice: String(rackPrice),
-        amountTotal: String(amountTotal),
-        notes,
-        items: JSON.stringify(bookingItems),
+       pickupTime,
+pickupLocation,
+
+totalDays: String(totalDays),
+
+surfboardRack: String(Boolean(surfboardRack)),
+childSeat: String(Boolean(childSeat)),
+rearBasket: String(Boolean(rearBasket)),
+
+rackPrice: String(rackPrice),
+childSeatPrice: String(childSeatPrice),
+rearBasketPrice: String(rearBasketPrice),
+accessoryPrice: String(accessoryPrice),
+
+amountTotal: String(amountTotal),
       },
 
       success_url: `${process.env.FRONTEND_URL}/success?type=booking`,
