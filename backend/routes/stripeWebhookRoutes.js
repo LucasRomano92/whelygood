@@ -60,14 +60,14 @@ router.post(
             return res.json({ received: true });
           }
 
-          let items = [];
+         let items = [];
 
-          try {
-            items = JSON.parse(metadata.items || "[]");
-          } catch (err) {
-            console.error("❌ ERROR PARSING BOOKING ITEMS:", err);
-            return res.json({ received: true });
-          }
+try {
+  items = JSON.parse(metadata.bookingItems || "[]");
+} catch (err) {
+  console.error("❌ ERROR PARSING BOOKING ITEMS:", err);
+  return res.json({ received: true });
+}
 
           if (!items.length) {
             console.error("❌ NO BOOKING ITEMS FOUND");
@@ -96,6 +96,7 @@ router.post(
             customerName: metadata.customerName || name,
             customerEmail: metadata.customerEmail || email,
             customerPhone: metadata.customerPhone || "",
+            notes: metadata.notes || "",
 
             items,
 
@@ -171,8 +172,7 @@ amountTotal: total,
 
                 <p>
                   <strong>Pickup Address:</strong><br/>
-                  Unit 1/122 Bangalow Rd<br/>
-                  Byron Bay NSW 2481
+${booking.pickupLocation}
                 </p>
 
                 <p>
@@ -215,9 +215,8 @@ amountTotal: total,
                 <h3>Pickup Information</h3>
 
                 <p>
-                  <strong>Pickup Address:</strong><br/>
-                  Unit 1/122 Bangalow Rd<br/>
-                  Byron Bay NSW 2481
+                 <strong>Pickup Address:</strong><br/>
+${booking.pickupLocation}
                 </p>
 
                 <p>
@@ -286,8 +285,7 @@ amountTotal: total,
           ? `
             <p>
               <strong>Pickup Address:</strong><br/>
-              Unit 1/122 Bangalow Rd<br/>
-              Byron Bay NSW 2481
+${deliveryAddress || "Unit 1/122 Bangalow Rd, Byron Bay NSW"}
             </p>
           `
           : `

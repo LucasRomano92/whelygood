@@ -394,29 +394,34 @@ for (const accessory of accessories) {
       customer_email: email,
       line_items: lineItems,
 
-      metadata: {
-        type: "booking",
-        customerName: name,
-        customerEmail: email,
-        customerPhone: phone,
-        startDate,
-        endDate,
-       pickupTime,
-pickupLocation,
+     metadata: {
+  type: "booking",
 
-totalDays: String(totalDays),
+  customerName: name,
+  customerEmail: email,
+  customerPhone: phone,
 
-surfboardRack: String(Boolean(surfboardRack)),
-childSeat: String(Boolean(childSeat)),
-rearBasket: String(Boolean(rearBasket)),
+  startDate,
+  endDate,
+  pickupTime,
+  pickupLocation,
+  notes,
 
-rackPrice: String(rackPrice),
-childSeatPrice: String(childSeatPrice),
-rearBasketPrice: String(rearBasketPrice),
-accessoryPrice: String(accessoryPrice),
+  totalDays: String(totalDays),
 
-amountTotal: String(amountTotal),
-      },
+  bookingItems: JSON.stringify(bookingItems),
+
+  surfboardRack: String(Boolean(surfboardRack)),
+  childSeat: String(Boolean(childSeat)),
+  rearBasket: String(Boolean(rearBasket)),
+
+  rackPrice: String(rackPrice),
+  childSeatPrice: String(childSeatPrice),
+  rearBasketPrice: String(rearBasketPrice),
+  accessoryPrice: String(accessoryPrice),
+
+  amountTotal: String(amountTotal),
+},
 
       success_url: `${process.env.FRONTEND_URL}/success?type=booking`,
       cancel_url: `${process.env.FRONTEND_URL}/booking`,

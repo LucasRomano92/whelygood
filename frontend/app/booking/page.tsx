@@ -492,7 +492,7 @@ return (
 
   <p className="mt-3 text-sm font-semibold text-[#5B6470]">
     Pick up and return your bike at the selected location.
-  </p>
+  </p> 
 </div>
                   </div>
 
