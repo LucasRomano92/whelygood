@@ -4,7 +4,7 @@ import { FiMail } from "react-icons/fi";
 import { FaWhatsapp, FaInstagram } from "react-icons/fa";
 
 export default function Footer() {
-  const address = "Unit 1/122 Bangalow Rd, Byron Bay NSW";
+  const address = "88-94 Centennial Cct, Byron Bay NSW 2481";
   const encodedAddress = encodeURIComponent(address);
 
   return (
